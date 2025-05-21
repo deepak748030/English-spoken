@@ -34,3 +34,25 @@ export const updateUser = async (req, res, next) => {
         sendResponse(res, 200, 'User updated', user);
     } catch (err) { next(err); }
 };
+
+export const blockUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return sendResponse(res, 404, 'User not found');
+        const newStatus = !user.isBlocked;
+        user.isBlocked = newStatus;
+        await user.save();
+        logger.info(`User ${newStatus ? 'blocked' : 'unblocked'}: ${user.gmail || user.mobileNo}`);
+        sendResponse(res, 200, `User ${newStatus ? 'blocked' : 'unblocked'}`, user);
+    } catch (err) { next(err); }
+}
+
+
+export const getUsers = async (req, res, next) => {
+    try {
+        const users = await User.find();
+        sendResponse(res, 200, 'Users fetched successfully', users);
+    } catch (err) {
+        next(err);
+    }
+};

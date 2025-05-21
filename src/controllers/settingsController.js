@@ -20,3 +20,15 @@ export const upsertSettings = async (req, res, next) => {
         sendResponse(res, 200, `Settings ${settings.isNew ? 'created' : 'updated'}`, settings);
     } catch (err) { next(err); }
 };
+
+export const getSettings = async (req, res, next) => {
+    try {
+        const settings = await Settings.findOne({});
+        if (!settings) {
+            return sendResponse(res, 404, 'Settings not found');
+        }
+        sendResponse(res, 200, 'Settings fetched successfully', settings);
+    } catch (err) {
+        next(err);
+    }
+};

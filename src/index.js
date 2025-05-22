@@ -13,6 +13,7 @@ import subCategoryRoutes from './routes/subCategoryRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
 import practiceGameRoutes from './routes/practiceGameRoutes.js';
 import paraRoutes from './routes/paraRoutes.js';
+import resourceRoutes from './routes/resourceRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import morgan from 'morgan';
 import path from 'path';
@@ -34,6 +35,8 @@ app.use('/api', subCategoryRoutes);
 app.use('/api', quizRoutes);
 app.use('/api', practiceGameRoutes);
 app.use('/api', paraRoutes);
+app.use('/api', resourceRoutes);
+
 
 
 

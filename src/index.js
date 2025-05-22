@@ -11,6 +11,7 @@ import topicRoutes from './routes/topicRoutes.js';
 import topicContentRoutes from './routes/topicContentRoutes.js';
 import subCategoryRoutes from './routes/subCategoryRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
+import practiceGameRoutes from './routes/practiceGameRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import morgan from 'morgan';
 import path from 'path';
@@ -30,6 +31,8 @@ app.use('/api', topicRoutes);
 app.use('/api', topicContentRoutes);
 app.use('/api', subCategoryRoutes);
 app.use('/api', quizRoutes);
+app.use('/api', practiceGameRoutes);
+
 
 
 

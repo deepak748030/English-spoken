@@ -4,13 +4,15 @@ import {
     createTopic,
     getAllTopics,
     updateTopic,
-    deleteTopic
+    deleteTopic,
+    getAllTopicsByType
 } from '../controllers/topicController.js';
 
 const router = express.Router();
 
 router.post('/topics', createTopic);
 router.get('/topics', getAllTopics);
+router.get('/topics/:type', getAllTopicsByType);
 router.patch('/topics/:id', updateTopic);
 router.delete('/topics/:id', deleteTopic);
 

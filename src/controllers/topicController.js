@@ -28,6 +28,20 @@ export const getAllTopics = async (req, res) => {
     }
 };
 
+export const getAllTopicsByType = async (req, res) => {
+    try {
+        const { type } = req.params;
+        if (!type) {
+            return sendResponse(res, 400, "Type is required");
+        }
+        const slugType = slugify(type.toLowerCase());
+        const topics = await Topic.find({ type: slugType }).sort({ createdAt: -1 });
+        sendResponse(res, 200, "Topics fetched successfully", topics);
+    } catch (error) {
+        sendResponse(res, 500, "Error fetching topics by type");
+    }
+};
+
 export const updateTopic = async (req, res) => {
     try {
         const { id } = req.params;

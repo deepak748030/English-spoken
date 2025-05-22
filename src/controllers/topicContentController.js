@@ -18,7 +18,7 @@ export const createTopicContent = async (req, res) => {
 
 export const getAllTopicContents = async (req, res) => {
     try {
-        const contents = await TopicContent.find().populate('topic').sort({ number: 1 });
+        const contents = await TopicContent.find().sort({ number: 1 });
         sendResponse(res, 200, "Topic contents fetched", contents);
     } catch (err) {
         sendResponse(res, 500, "Error fetching topic contents");

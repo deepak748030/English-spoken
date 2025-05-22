@@ -9,6 +9,7 @@ import settingsRoutes from './routes/settingsRoutes.js';
 import homeRoutes from './routes/homeRoutes.js'
 import topicRoutes from './routes/topicRoutes.js';
 import topicContentRoutes from './routes/topicContentRoutes.js';
+import subCategoryRoutes from './routes/subCategoryRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import morgan from 'morgan';
 import path from 'path';
@@ -26,6 +27,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api', homeRoutes);
 app.use('/api', topicRoutes);
 app.use('/api', topicContentRoutes);
+app.use('/api', subCategoryRoutes);
+
 
 
 app.use(errorHandler);

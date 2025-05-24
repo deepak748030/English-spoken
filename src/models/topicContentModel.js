@@ -17,6 +17,10 @@ const topicContentSchema = new mongoose.Schema({
     isLocked: {
         type: Boolean,
         default: false
+    },
+    type: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

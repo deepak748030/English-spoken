@@ -7,3 +7,6 @@ const topicSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model('Topic', topicSchema);
+// daily use sentences
+// vocabulary 
+

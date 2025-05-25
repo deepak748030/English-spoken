@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const paraSchema = new mongoose.Schema({
+const vocabularySchema = new mongoose.Schema({
     subCategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SubCategory',
@@ -12,4 +12,4 @@ const paraSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-export default mongoose.model('Para', paraSchema);
+export default mongoose.model('Vocabulary', vocabularySchema);

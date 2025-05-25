@@ -35,7 +35,10 @@ export const createCommunityPost = async (req, res) => {
 
 export const getCommunityPosts = async (req, res) => {
     try {
-        const posts = await Community.find().populate('userId', 'mobileNo');
+        const limit = parseInt(req.query.limit) || 10;
+        const posts = await Community.find({ replyId: null })
+            .populate('userId', 'mobileNo')
+            .limit(limit);
         sendResponse(res, 200, 'Community posts fetched', posts);
     } catch (err) {
         sendResponse(res, 500, err.message);
@@ -69,6 +72,17 @@ export const deleteCommunityPost = async (req, res) => {
 
         await Community.findByIdAndDelete(req.params.id);
         sendResponse(res, 200, 'Community post deleted');
+    } catch (err) {
+        sendResponse(res, 500, err.message);
+    }
+};
+
+
+export const getReplyCommunityPostsByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const posts = await Community.find({ replyId: userId }).populate('userId', 'mobileNo');
+        sendResponse(res, 200, 'Community posts fetched by user', posts);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }

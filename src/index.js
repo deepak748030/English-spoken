@@ -62,6 +62,7 @@ app.use('/api/course', prizeCourseRoutes);
 
 app.use(errorHandler);
 
+
 // DB + Server start
 connectDB().then(() => {
   initSocketServer(server); // Init socket server

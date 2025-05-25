@@ -17,14 +17,6 @@ const quizSchema = new mongoose.Schema({
     correctAnswer: {
         type: String,
         required: true
-    },
-    number: {
-        type: Number,
-        required: true
-    },
-    isLocked: {
-        type: Boolean,
-        default: false
     }
 }, { timestamps: true });
 

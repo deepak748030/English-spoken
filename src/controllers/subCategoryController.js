@@ -3,13 +3,13 @@ import { sendResponse } from '../utils/response.js';
 
 export const createSubCategory = async (req, res) => {
     try {
-        const { topicContent, title, number, isLocked, type } = req.body;
+        const { topicContent, title, type } = req.body;
 
-        if (!topicContent || !title || number === undefined || !type) {
-            return sendResponse(res, 400, "topicContent, title, number, and type are required.");
+        if (!topicContent || !title || !type) {
+            return sendResponse(res, 400, "topicContent, title and type are required.");
         }
 
-        const newSub = await SubCategory.create({ topicContent, title, number, isLocked, type });
+        const newSub = await SubCategory.create({ topicContent, title, type });
         sendResponse(res, 201, "Subcategory created successfully", newSub);
     } catch (err) {
         sendResponse(res, 500, "Error creating subcategory");

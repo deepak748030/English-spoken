@@ -2,13 +2,13 @@ import TopicContent from '../models/topicContentModel.js';
 import { sendResponse } from '../utils/response.js';
 export const createTopicContent = async (req, res) => {
     try {
-        const { topic, title, number, isLocked, type } = req.body;
+        const { topic, title, type } = req.body;
 
-        if (!topic || !title || number === undefined || !type) {
+        if (!topic || !title || !type) {
             return sendResponse(res, 400, "Topic, title, number, and type are required.");
         }
 
-        const newContent = await TopicContent.create({ topic, title, number, isLocked, type });
+        const newContent = await TopicContent.create({ topic, title, type });
         sendResponse(res, 201, "Topic content created successfully", newContent);
     } catch (err) {
         sendResponse(res, 500, "Error creating topic content");

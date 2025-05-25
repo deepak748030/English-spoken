@@ -3,13 +3,13 @@ import { sendResponse } from '../utils/response.js';
 
 export const createQuiz = async (req, res) => {
     try {
-        const { subCategory, question, options, correctAnswer, number, isLocked } = req.body;
+        const { subCategory, question, options, correctAnswer } = req.body;
 
-        if (!subCategory || !question || !options || !correctAnswer || number === undefined) {
+        if (!subCategory || !question || !options || !correctAnswer) {
             return sendResponse(res, 400, "Missing required fields");
         }
 
-        const newQuiz = await Quiz.create({ subCategory, question, options, correctAnswer, number, isLocked });
+        const newQuiz = await Quiz.create({ subCategory, question, options, correctAnswer });
         sendResponse(res, 201, "Quiz created", newQuiz);
     } catch (err) {
         sendResponse(res, 500, "Error creating quiz");

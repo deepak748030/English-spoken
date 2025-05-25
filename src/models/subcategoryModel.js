@@ -10,14 +10,6 @@ const subCategorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    number: {
-        type: Number,
-        required: true
-    },
-    isLocked: {
-        type: Boolean,
-        default: false
-    },
     type: {
         type: String,
         required: true

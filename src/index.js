@@ -27,6 +27,7 @@ import topicCourseRoutes from './routes/topicCourseRoutes.js';
 import prizeCourseRoutes from './routes/prizeCourseRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import courseSubscriptionRoutes from './routes/courseSubscriptionRoutes.js';
+import dailyUseSentenceRoutes from './routes/dailyUseSentenceRoutes.js';
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use('/api', practiceGameRoutes);
 app.use('/api', vocabularyRoutes);
 app.use('/api', resourceRoutes);
 app.use('/api', courseRoutes);
+app.use('/api', dailyUseSentenceRoutes);
 app.use('/api', courseSubscriptionRoutes);
 app.use('/api/course', lessonCourseRoutes);
 app.use('/api/course', topicCourseRoutes);

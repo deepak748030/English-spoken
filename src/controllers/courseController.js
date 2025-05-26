@@ -38,3 +38,18 @@ export const deleteCourse = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
+export const getCoursesByType = async (req, res) => {
+    try {
+        console.log(req.params.type)
+        const courses = await Course.find({ type: req.params.type });
+        if (courses.length === 0) {
+            return sendResponse(res, 404, 'No courses found for this type');
+        }
+        sendResponse(res, 200, 'Courses fetched', courses);
+    } catch (err) {
+        sendResponse(res, 500, err.message);
+    }
+}
+
+

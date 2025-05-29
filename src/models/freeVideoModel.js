@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const resourceSchema = new mongoose.Schema({
-    topicContentId: {
+const freeVideoSchema = new mongoose.Schema({
+    subCategoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'TopicContent',
+        ref: 'SubCategory',
         required: true
     },
     title: {
@@ -24,4 +24,4 @@ const resourceSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-export default mongoose.model('Resource', resourceSchema);
+export default mongoose.model('FreeVideo', freeVideoSchema);

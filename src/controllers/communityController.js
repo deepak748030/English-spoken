@@ -37,7 +37,7 @@ export const getCommunityPosts = async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
         const posts = await Community.find({ replyId: null })
-            .populate('userId', 'mobileNo')
+            .populate('userId', 'mobileNo name')
             .limit(limit);
         sendResponse(res, 200, 'Community posts fetched', posts);
     } catch (err) {

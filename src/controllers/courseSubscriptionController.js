@@ -22,6 +22,17 @@ export const getAllSubscriptions = async (req, res) => {
     }
 };
 
+export const getSubscriptionsByUserId = async (req, res) => {
+    try {
+        const subscriptions = await CourseSubscription.find({ userId: req.params.userId })
+            .populate('userId')
+            .populate('courseId');
+        sendResponse(res, 200, 'Subscriptions fetched by userId', subscriptions);
+    } catch (error) {
+        sendResponse(res, 500, error.message);
+    }
+};
+
 export const updateSubscription = async (req, res) => {
     try {
         const subscription = await CourseSubscription.findByIdAndUpdate(

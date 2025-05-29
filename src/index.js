@@ -11,6 +11,7 @@ import logger from './config/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import { initSocketServer } from './socket/socketServer.js';
 
+
 import userRoutes from './routes/userRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import homeRoutes from './routes/homeRoutes.js';
@@ -41,6 +42,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join('src', 'uploads')));
+
+
 
 // Routes
 app.use('/api/users', userRoutes);

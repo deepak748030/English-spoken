@@ -12,7 +12,7 @@ export const createDailyUseSentence = async (req, res) => {
 
 export const getDailyUseSentences = async (req, res) => {
     try {
-        const sentences = await DailyUseSentence.find().populate('subCategory');
+        const sentences = await DailyUseSentence.find();
         sendResponse(res, 200, 'Daily Use Sentences fetched', sentences);
     } catch (err) {
         sendResponse(res, 500, err.message);
@@ -39,3 +39,13 @@ export const updateDailyUseSentence = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 }
+
+export const getDailyUseSentencesBySubcategoryId = async (req, res) => {
+    try {
+        const { subcategoryId } = req.params;
+        const sentences = await DailyUseSentence.find({ subCategory: subcategoryId });
+        sendResponse(res, 200, 'Daily Use Sentences fetched by subcategoryId', sentences);
+    } catch (err) {
+        sendResponse(res, 500, err.message);
+    }
+};

@@ -36,11 +36,11 @@ ebookRouter.patch(
     ]),
     updateEbook
 );
-ebookRouter.delete('/ebooks/:id', deleteEbook);
 
 // Ebook Orders
 ebookRouter.post('/ebooks/order', createEbookOrder);
 ebookRouter.get('/ebooks/orders', getAllOrders);
 ebookRouter.get('/ebooks/orders/user/:userId', getOrdersByUserId);
+ebookRouter.delete('/ebooks/:id', deleteEbook);
 
 export default ebookRouter;

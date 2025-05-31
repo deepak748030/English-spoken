@@ -6,7 +6,6 @@ import { sendResponse } from "../utils/response.js";
 export const createEbook = async (req, res) => {
     try {
         const { title, description, rating, teacherId } = req.body;
-
         const imageFile = req.files?.image?.[0];
         const demoPdfFile = req.files?.demoPdf?.[0];
         const originalPdfFile = req.files?.originalPdf?.[0];
@@ -20,9 +19,9 @@ export const createEbook = async (req, res) => {
             description,
             rating,
             teacherId,
-            imageUrl: `/uploads/${imageFile.filename}`,
-            demoPdfUrl: `/uploads/${demoPdfFile.filename}`,
-            originalPdfUrl: `/uploads/${originalPdfFile.filename}`,
+            imageUrl: `${process.env.IMG_URL}${imageFile.filename}`,
+            demoPdfUrl: `${process.env.IMG_URL}${demoPdfFile.filename}`,
+            originalPdfUrl: `${process.env.IMG_URL}${originalPdfFile.filename}`,
         });
 
         await newEbook.save();
@@ -53,9 +52,9 @@ export const updateEbook = async (req, res) => {
         const demoPdfFile = req.files?.demoPdf?.[0];
         const originalPdfFile = req.files?.originalPdf?.[0];
 
-        if (imageFile) ebook.imageUrl = `/uploads/${imageFile.filename}`;
-        if (demoPdfFile) ebook.demoPdfUrl = `/uploads/${demoPdfFile.filename}`;
-        if (originalPdfFile) ebook.originalPdfUrl = `/uploads/${originalPdfFile.filename}`;
+        if (imageFile) ebook.imageUrl = `${process.env.IMG_URL}${imageFile.filename}`;
+        if (demoPdfFile) ebook.demoPdfUrl = `${process.env.IMG_URL}${demoPdfFile.filename}`;
+        if (originalPdfFile) ebook.originalPdfUrl = `${process.env.IMG_URL}${originalPdfFile.filename}`;
 
         await ebook.save();
 
@@ -68,7 +67,8 @@ export const updateEbook = async (req, res) => {
 
 export const getAllEbooks = async (_, res) => {
     try {
-        const ebooks = await Ebook.find().populate("teacherId", "name email");
+        // const ebooks = await Ebook.find().populate("teacherId", "name email");
+        const ebooks = await Ebook.find();
         sendResponse(res, 200, "All ebooks fetched", ebooks);
     } catch (error) {
         sendResponse(res, 500, "Server Error");
@@ -78,7 +78,8 @@ export const getAllEbooks = async (_, res) => {
 export const getEbooksByTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const ebooks = await Ebook.find({ teacherId }).populate("teacherId", "name email");
+        // const ebooks = await Ebook.find({ teacherId }).populate("teacherId", "name email");
+        const ebooks = await Ebook.find({ teacherId });
         sendResponse(res, 200, "Ebooks by teacher fetched", ebooks);
     } catch (error) {
         sendResponse(res, 500, "Server Error");
@@ -100,6 +101,7 @@ export const createEbookOrder = async (req, res) => {
         const order = await EbookOrder.create({ userId, ebookId });
         sendResponse(res, 201, 'Order placed', order);
     } catch (err) {
+        console.log(err)
         sendResponse(res, 500, err.message);
     }
 };

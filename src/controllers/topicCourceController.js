@@ -8,10 +8,10 @@ export const createTopic = async (req, res) => {
         // Handle file uploads
         if (req.files) {
             if (req.files.topicNotes && req.files.topicNotes[0]) {
-                data.topicNotes = process.env.IMG_URL + "pdfs/" + req.files.topicNotes[0].filename;
+                data.topicNotes = process.env.IMG_URL + req.files.topicNotes[0].filename;
             }
             if (req.files.practiceQuestion && req.files.practiceQuestion[0]) {
-                data.practiceQuestion = process.env.IMG_URL + "pdfs/" + req.files.practiceQuestion[0].filename;
+                data.practiceQuestion = process.env.IMG_URL + req.files.practiceQuestion[0].filename;
             }
         }
 
@@ -39,10 +39,10 @@ export const updateTopic = async (req, res) => {
         // Handle file uploads
         if (req.files) {
             if (req.files.topicNotes && req.files.topicNotes[0]) {
-                data.topicNotes = process.env.IMG_URL + "pdfs/" + req.files.topicNotes[0].filename;
+                data.topicNotes = process.env.IMG_URL + req.files.topicNotes[0].filename;
             }
             if (req.files.practiceQuestion && req.files.practiceQuestion[0]) {
-                data.practiceQuestion = process.env.IMG_URL + "pdfs/" + req.files.practiceQuestion[0].filename;
+                data.practiceQuestion = process.env.IMG_URL + req.files.practiceQuestion[0].filename;
             }
         }
 

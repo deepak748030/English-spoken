@@ -67,8 +67,8 @@ export const updateEbook = async (req, res) => {
 
 export const getAllEbooks = async (_, res) => {
     try {
-        // const ebooks = await Ebook.find().populate("teacherId", "name email");
-        const ebooks = await Ebook.find();
+        const ebooks = await Ebook.find().populate("teacherId", "teacherName teacherNumber");
+        // const ebooks = await Ebook.find();
         sendResponse(res, 200, "All ebooks fetched", ebooks);
     } catch (error) {
         sendResponse(res, 500, "Server Error");
@@ -78,8 +78,8 @@ export const getAllEbooks = async (_, res) => {
 export const getEbooksByTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        // const ebooks = await Ebook.find({ teacherId }).populate("teacherId", "name email");
-        const ebooks = await Ebook.find({ teacherId });
+        const ebooks = await Ebook.find({ teacherId }).populate("teacherId", "teacherName teacherNumber");
+        // const ebooks = await Ebook.find({ teacherId });
         sendResponse(res, 200, "Ebooks by teacher fetched", ebooks);
     } catch (error) {
         sendResponse(res, 500, "Server Error");
@@ -108,7 +108,7 @@ export const createEbookOrder = async (req, res) => {
 
 export const getAllOrders = async (_, res) => {
     try {
-        const orders = await EbookOrder.find().populate('userId', 'name email').populate('ebookId');
+        const orders = await EbookOrder.find().populate('userId', 'name mobileNo').populate('ebookId');
         sendResponse(res, 200, 'All ebook orders fetched', orders);
     } catch (err) {
         sendResponse(res, 500, err.message);

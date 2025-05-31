@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Multer storage configuration for PDFs
+// Multer storage configuration for PDFs and images
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../uploads/pdfs/'));
@@ -16,12 +16,18 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter to accept only PDFs
+// File filter to accept only PDFs and images
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    const allowedTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/jpg'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Only PDF files are allowed!'), false);
+        cb(new Error('Only PDF and image files (jpg, jpeg, png) are allowed!'), false);
     }
 };
 

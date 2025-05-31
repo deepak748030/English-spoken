@@ -1,77 +1,90 @@
-import Ebook from '../models/ebookModel.js';
-import EbookOrder from '../models/ebookOrderModel.js';
-import { sendResponse } from '../utils/response.js';
+import Ebook from "../models/ebookModel.js";
+import EbookOrder from "../models/ebookOrderModel.js";
+import { sendResponse } from "../utils/response.js";
 
-// Create Ebook
+// Create Ebook Controller
 export const createEbook = async (req, res) => {
     try {
-        const data = req.body;
-        data.userId = req.body.userId; // from req.body or token auth
+        const { title, description, rating, teacherId } = req.body;
 
-        if (req.files) {
-            if (req.files.banner?.[0]) {
-                data.banner = process.env.IMG_URL + 'pdfs/' + req.files.banner[0].filename;
-            }
-            if (req.files.demoPdf?.[0]) {
-                data.demoPdfUrl = process.env.IMG_URL + 'pdfs/' + req.files.demoPdf[0].filename;
-            }
-            if (req.files.originalPdf?.[0]) {
-                data.originalPdfUrl = process.env.IMG_URL + 'pdfs/' + req.files.originalPdf[0].filename;
-            }
+        const imageFile = req.files?.image?.[0];
+        const demoPdfFile = req.files?.demoPdf?.[0];
+        const originalPdfFile = req.files?.originalPdf?.[0];
+
+        if (!imageFile || !demoPdfFile || !originalPdfFile) {
+            return sendResponse(res, 400, "All files are required");
         }
 
-        const ebook = await Ebook.create(data);
-        sendResponse(res, 201, 'Ebook created', ebook);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
+        const newEbook = new Ebook({
+            title,
+            description,
+            rating,
+            teacherId,
+            imageUrl: `/uploads/${imageFile.filename}`,
+            demoPdfUrl: `/uploads/${demoPdfFile.filename}`,
+            originalPdfUrl: `/uploads/${originalPdfFile.filename}`,
+        });
+
+        await newEbook.save();
+
+        sendResponse(res, 201, "Ebook created", newEbook);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, "Server Error");
     }
 };
 
-// Get All Ebooks (Admin or public)
-export const getAllEbooks = async (req, res) => {
-    try {
-        const ebooks = await Ebook.find().populate('userId', 'name email');
-        sendResponse(res, 200, 'All ebooks fetched', ebooks);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
-    }
-};
-
-// Get All Ebooks by User ID
-export const getEbooksByUserId = async (req, res) => {
-    try {
-        const ebooks = await Ebook.find({ userId: req.params.userId }).populate('userId', 'name email');
-        sendResponse(res, 200, 'Ebooks fetched by user', ebooks);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
-    }
-};
-
-// Update Ebook
 export const updateEbook = async (req, res) => {
     try {
-        const data = req.body;
+        const ebookId = req.params.id;
+        const { title, description, rating, teacherId } = req.body;
 
-        if (req.files) {
-            if (req.files.banner?.[0]) {
-                data.banner = process.env.IMG_URL + 'pdfs/' + req.files.banner[0].filename;
-            }
-            if (req.files.demoPdf?.[0]) {
-                data.demoPdfUrl = process.env.IMG_URL + 'pdfs/' + req.files.demoPdf[0].filename;
-            }
-            if (req.files.originalPdf?.[0]) {
-                data.originalPdfUrl = process.env.IMG_URL + 'pdfs/' + req.files.originalPdf[0].filename;
-            }
+        const ebook = await Ebook.findById(ebookId);
+        if (!ebook) {
+            return sendResponse(res, 404, "Ebook not found");
         }
 
-        const ebook = await Ebook.findByIdAndUpdate(req.params.id, data, { new: true });
-        sendResponse(res, 200, 'Ebook updated', ebook);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
+        if (title) ebook.title = title;
+        if (description) ebook.description = description;
+        if (rating) ebook.rating = rating;
+        if (teacherId) ebook.teacherId = teacherId;
+
+        const imageFile = req.files?.image?.[0];
+        const demoPdfFile = req.files?.demoPdf?.[0];
+        const originalPdfFile = req.files?.originalPdf?.[0];
+
+        if (imageFile) ebook.imageUrl = `/uploads/${imageFile.filename}`;
+        if (demoPdfFile) ebook.demoPdfUrl = `/uploads/${demoPdfFile.filename}`;
+        if (originalPdfFile) ebook.originalPdfUrl = `/uploads/${originalPdfFile.filename}`;
+
+        await ebook.save();
+
+        sendResponse(res, 200, "Ebook updated", ebook);
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, "Server Error");
     }
 };
 
-// Delete Ebook
+export const getAllEbooks = async (_, res) => {
+    try {
+        const ebooks = await Ebook.find().populate("teacherId", "name email");
+        sendResponse(res, 200, "All ebooks fetched", ebooks);
+    } catch (error) {
+        sendResponse(res, 500, "Server Error");
+    }
+};
+
+export const getEbooksByTeacher = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const ebooks = await Ebook.find({ teacherId }).populate("teacherId", "name email");
+        sendResponse(res, 200, "Ebooks by teacher fetched", ebooks);
+    } catch (error) {
+        sendResponse(res, 500, "Server Error");
+    }
+};
+
 export const deleteEbook = async (req, res) => {
     try {
         await Ebook.findByIdAndDelete(req.params.id);
@@ -81,7 +94,6 @@ export const deleteEbook = async (req, res) => {
     }
 };
 
-// Order Ebook
 export const createEbookOrder = async (req, res) => {
     try {
         const { userId, ebookId } = req.body;
@@ -92,8 +104,7 @@ export const createEbookOrder = async (req, res) => {
     }
 };
 
-// Get All Orders (Admin)
-export const getAllOrders = async (req, res) => {
+export const getAllOrders = async (_, res) => {
     try {
         const orders = await EbookOrder.find().populate('userId', 'name email').populate('ebookId');
         sendResponse(res, 200, 'All ebook orders fetched', orders);
@@ -102,7 +113,6 @@ export const getAllOrders = async (req, res) => {
     }
 };
 
-// Get Orders by User
 export const getOrdersByUserId = async (req, res) => {
     try {
         const orders = await EbookOrder.find({ userId: req.params.userId }).populate('ebookId');

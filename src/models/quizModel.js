@@ -17,6 +17,10 @@ const quizSchema = new mongoose.Schema({
     correctAnswer: {
         type: String,
         required: true
+    },
+    type: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

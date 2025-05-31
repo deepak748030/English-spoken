@@ -3,13 +3,13 @@ import { sendResponse } from '../utils/response.js';
 
 export const createQuiz = async (req, res) => {
     try {
-        const { subCategory, question, options, correctAnswer } = req.body;
+        const { subCategory, question, options, correctAnswer, type } = req.body;
 
         if (!subCategory || !question || !options || !correctAnswer) {
             return sendResponse(res, 400, "Missing required fields");
         }
 
-        const newQuiz = await Quiz.create({ subCategory, question, options, correctAnswer });
+        const newQuiz = await Quiz.create({ subCategory, question, options, correctAnswer, type });
         sendResponse(res, 201, "Quiz created", newQuiz);
     } catch (err) {
         sendResponse(res, 500, "Error creating quiz");
@@ -52,5 +52,16 @@ export const deleteQuiz = async (req, res) => {
         sendResponse(res, 200, "Quiz deleted");
     } catch (err) {
         sendResponse(res, 500, "Error deleting quiz");
+    }
+};
+
+export const getDataByType = async (req, res) => {
+    try {
+        const { type } = req.params;
+        if (!type) return sendResponse(res, 400, "Type parameter is required");
+        const quizzes = await Quiz.find({ type });
+        sendResponse(res, 200, "Quizzes fetched by type", quizzes);
+    } catch (err) {
+        sendResponse(res, 500, "Error fetching quizzes by type");
     }
 };

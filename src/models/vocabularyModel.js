@@ -9,6 +9,10 @@ const vocabularySchema = new mongoose.Schema({
     text: {
         type: String,
         required: true
+    },
+    type: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

@@ -4,7 +4,8 @@ import {
     getAllQuizzes,
     getQuizById,
     updateQuiz,
-    deleteQuiz
+    deleteQuiz,
+    getDataByType
 } from '../controllers/quizController.js';
 
 const router = express.Router();
@@ -12,6 +13,7 @@ const router = express.Router();
 router.post('/quizzes', createQuiz);
 router.get('/quizzes', getAllQuizzes);
 router.get('/quizzes/:id', getQuizById);
+router.get('/quizzes/type/:type', getDataByType);
 router.patch('/quizzes/:id', updateQuiz);
 router.delete('/quizzes/:id', deleteQuiz);
 

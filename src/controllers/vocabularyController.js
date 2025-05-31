@@ -6,13 +6,13 @@ const cleanText = (input) => input.replace(/[.?]/g, '');
 
 export const createVocabulary = async (req, res) => {
     try {
-        const { subCategory, text } = req.body;
+        const { subCategory, text, type } = req.body;
         if (!subCategory || !text) {
             return sendResponse(res, 400, "subCategory and text are required");
         }
 
         const cleaned = cleanText(text);
-        const newVocabulary = await Vocabulary.create({ subCategory, text: cleaned });
+        const newVocabulary = await Vocabulary.create({ subCategory, text: cleaned, type });
 
         sendResponse(res, 201, "Vocabulary created successfully", newVocabulary);
     } catch (error) {
@@ -22,7 +22,7 @@ export const createVocabulary = async (req, res) => {
 
 export const getAllVocabulary = async (req, res) => {
     try {
-        const vocabularies = await Vocabulary.find();
+        const vocabularies = await Vocabulary.find().populate('subCategory', 'title');
         sendResponse(res, 200, "Vocabularies fetched successfully", vocabularies);
     } catch (error) {
         sendResponse(res, 500, "Error fetching vocabularies");
@@ -31,7 +31,7 @@ export const getAllVocabulary = async (req, res) => {
 
 export const getVocabularyById = async (req, res) => {
     try {
-        const vocabulary = await Vocabulary.find({ subCategory: req.params.id });
+        const vocabulary = await Vocabulary.find({ subCategory: req.params.id }).populate('subCategory', 'title');;
         if (!vocabulary) return sendResponse(res, 404, "Vocabulary not found");
         sendResponse(res, 200, "Vocabulary found", vocabulary);
     } catch (error) {
@@ -62,5 +62,18 @@ export const deleteVocabulary = async (req, res) => {
         sendResponse(res, 200, "Vocabulary deleted");
     } catch (error) {
         sendResponse(res, 500, "Error deleting vocabulary");
+    }
+};
+
+export const getDataByType = async (req, res) => {
+    try {
+        const { type } = req.params;
+        if (!type) {
+            return sendResponse(res, 400, "Type parameter is required");
+        }
+        const vocabularies = await Vocabulary.find({ type }).populate('subCategory', 'title');
+        sendResponse(res, 200, "Vocabularies fetched by type successfully", vocabularies);
+    } catch (error) {
+        sendResponse(res, 500, "Error fetching vocabularies by type");
     }
 };

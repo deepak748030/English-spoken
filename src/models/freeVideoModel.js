@@ -21,6 +21,10 @@ const freeVideoSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true
+    },
+    type: {
+        type: String,
+        default: 'free'
     }
 }, { timestamps: true });
 

@@ -31,6 +31,7 @@ import courseSubscriptionRoutes from './routes/courseSubscriptionRoutes.js';
 import dailyUseSentenceRoutes from './routes/dailyUseSentenceRoutes.js';
 import translationExerciseRoutes from './routes/translationExerciseRoutes.js';
 import listeningPracticeRoutes from './routes/listeningPracticeRoutes.js';
+import ebookRoutes from './routes/ebookRoutes.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api', practiceGameRoutes);
 app.use('/api', vocabularyRoutes);
 app.use('/api', freeVideoRoutes);
 app.use('/api', courseRoutes);
+app.use('/api', ebookRoutes);
 app.use('/api', listeningPracticeRoutes);
 app.use('/api', dailyUseSentenceRoutes);
 app.use('/api', translationExerciseRoutes);

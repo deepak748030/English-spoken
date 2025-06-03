@@ -22,12 +22,11 @@ const teacherSchema = new mongoose.Schema({
     },
     commission: {
         type: Number,
-        default: function () {
-            return this.teacherType === 'other' ? 20 : 0;
-        }
+        required: true,
     }
 }, {
     timestamps: true
 });
 
 export default mongoose.model('Teacher', teacherSchema);
+// commission

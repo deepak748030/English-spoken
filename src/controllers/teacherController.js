@@ -5,11 +5,16 @@ import { sendResponse } from "../utils/response.js";
 export const createTeacher = async (req, res) => {
     try {
         const { teacherName, teacherNumber, teacherType } = req.body;
-
+        let commission;
+        if (teacherType == 'personal') {
+            commission = 0;
+        } else if (teacherType == 'other') {
+            commission = req.body.commission; // Default commission for 'other' type
+        }
         const existing = await Teacher.findOne({ teacherNumber });
         if (existing) return sendResponse(res, 400, "Teacher already exists");
 
-        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType });
+        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission });
         await newTeacher.save();
 
         sendResponse(res, 201, "Teacher created", newTeacher);
@@ -53,7 +58,7 @@ export const updateTeacher = async (req, res) => {
         if (teacherNumber) teacher.teacherNumber = teacherNumber;
         if (teacherType) {
             teacher.teacherType = teacherType;
-            teacher.commission = teacherType === 'other' ? 20 : 0;
+            teacher.commission = teacherType === 'other' ? req.body.commission : 0;
         }
         if (typeof isVerified === 'boolean') teacher.isVerified = isVerified;
 

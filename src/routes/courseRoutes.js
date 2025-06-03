@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post('/course', createCourse);
 router.get('/courses', getCourses);
-router.get('/course/:type', getCoursesByType)
+router.get('/course/type/:type', getCoursesByType)
 router.patch('/course/:id', updateCourse);
 router.delete('/course/:id', deleteCourse);
 

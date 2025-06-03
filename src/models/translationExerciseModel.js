@@ -1,19 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const translationExerciseSchema = new mongoose.Schema({
-    subCategoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'SubCategory',
-        required: true
+const translationExerciseSchema = new mongoose.Schema(
+    {
+        questions: [
+            {
+                question: { type: String, required: true },
+                answer: { type: String, required: true },
+            },
+        ],
+        subCategory: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "SubCategory",
+            required: true,
+        },
     },
-    question: {
-        type: String,
-        required: true
-    },
-    answer: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+    { timestamps: true }
+);
 
-export default mongoose.model('TranslationExercise', translationExerciseSchema);
+const TranslationExercise = mongoose.model("TranslationExercise", translationExerciseSchema);
+export default TranslationExercise;

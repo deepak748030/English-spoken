@@ -1,18 +1,18 @@
-import express from 'express';
+import express from "express";
 import {
     createTranslationExercise,
-    getTranslationExercises,
-    getTranslationExercisesBySubCategory,
+    getAllTranslationExercises,
     updateTranslationExercise,
-    deleteTranslationExercise
-} from '../controllers/translationExerciseController.js';
+    deleteTranslationExercise,
+    getTranslationExerciseBySubCategoryId,
+} from "../controllers/translationExerciseController.js";
 
 const router = express.Router();
 
-router.post('/translation-exercise', createTranslationExercise);
-router.get('/translation-exercises', getTranslationExercises);
-router.get('/translation-exercises/subcategory/:subCategoryId', getTranslationExercisesBySubCategory);
-router.patch('/translation-exercise/:id', updateTranslationExercise);
-router.delete('/translation-exercise/:id', deleteTranslationExercise);
+router.post("/", createTranslationExercise);
+router.get("/", getAllTranslationExercises);
+router.get("/subcategory/:id", getTranslationExerciseBySubCategoryId);
+router.put("/:id", updateTranslationExercise);
+router.delete("/:id", deleteTranslationExercise);
 
 export default router;

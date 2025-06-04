@@ -5,11 +5,13 @@ import {
     getTeacherById,
     updateTeacher,
     deleteTeacher,
+    teacherLogin,
 } from "../controllers/teacherController.js";
 
 const router = express.Router();
 
 router.post("/", createTeacher);
+router.post('/login', teacherLogin);
 router.get("/", getAllTeachers);
 router.get("/:id", getTeacherById);
 router.patch("/:id", updateTeacher);

@@ -85,3 +85,24 @@ export const deleteTeacher = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
+export const teacherLogin = async (req, res) => {
+    try {
+        const { teacherNumber, teacherType } = req.body;
+
+        if (!teacherNumber) {
+            return sendResponse(res, 400, "Teacher number is required");
+        }
+
+        const teacher = await Teacher.findOne({ teacherNumber, teacherType });
+
+        if (!teacher) {
+            return sendResponse(res, 404, "Teacher not found");
+        }
+
+        sendResponse(res, 200, "Teacher logged in", teacher);
+
+    } catch (err) {
+        sendResponse(res, 500, err.message);
+    }
+};

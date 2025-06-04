@@ -5,17 +5,9 @@ import { sendResponse } from "../utils/response.js";
 
 export const createPremium = async (req, res) => {
     try {
-        const {
-            courseIds,
-            ebookIds,
-            ...rest
-        } = req.body;
 
-        const premium = new Premium({
-            ...rest,
-            courses: courseIds,
-            ebooks: ebookIds
-        });
+
+        const premium = new Premium(req.body);
 
         await premium.save();
         sendResponse(res, 201, "Premium plan created", premium);
@@ -58,8 +50,8 @@ export const updatePremium = async (req, res) => {
 export const getAllPremiums = async (_, res) => {
     try {
         const premiums = await Premium.find()
-            .populate("courses", "title")
-            .populate("ebooks", "title");
+            .populate("courseIds", "title")
+            .populate("ebookIds", "title");
         sendResponse(res, 200, "Premium plans fetched", premiums);
     } catch (error) {
         console.error(error);

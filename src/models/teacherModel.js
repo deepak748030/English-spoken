@@ -23,6 +23,10 @@ const teacherSchema = new mongoose.Schema({
     commission: {
         type: Number,
         required: true,
+    },
+    enableLive: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

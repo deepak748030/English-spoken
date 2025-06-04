@@ -19,15 +19,9 @@ const premiumSchema = new mongoose.Schema(
             default: 0,
         },
 
-        // Keep this as you mentioned
-        courseType: {
-            type: String,
-            enum: ["spoken-english", "exam-english"],
-            required: true,
-        },
 
         // New field for storing selected Course IDs
-        courses: [
+        courseIds: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Course",
@@ -35,50 +29,14 @@ const premiumSchema = new mongoose.Schema(
         ],
 
         // New field for selected Ebook IDs
-        ebooks: [
+        ebookIds: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Ebook",
             },
         ],
 
-        description: {
-            type: String,
-        },
-
-        practiceGames: {
-            type: Boolean,
-            default: false,
-        },
-        dailyUseSentences: {
-            type: Boolean,
-            default: false,
-        },
-        listeningPractices: {
-            type: Boolean,
-            default: false,
-        },
-        translationExercise: {
-            type: Boolean,
-            default: false,
-        },
         englishGrammar: {
-            type: Boolean,
-            default: false,
-        },
-        vocabulary: {
-            type: Boolean,
-            default: false,
-        },
-        freeVideo: {
-            type: Boolean,
-            default: false,
-        },
-        quiz: {
-            type: Boolean,
-            default: false,
-        },
-        examEnglishQuiz: {
             type: Boolean,
             default: false,
         },
@@ -90,6 +48,38 @@ const premiumSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        examEnglishQuiz: {
+            type: Boolean,
+            default: false,
+        },
+        freeVideo: {
+            type: Boolean,
+            default: false,
+        },
+        listeningPractices: {
+            type: Boolean,
+            default: false,
+        },
+        practiceGames: {
+            type: Boolean,
+            default: false,
+        },
+        quiz: {
+            type: Boolean,
+            default: false,
+        },
+        translationExercises: {
+            type: Boolean,
+            default: false,
+        },
+        vocabulary: {
+            type: Boolean,
+            default: false,
+        },
+        dailyUseSentences: {
+            type: Boolean,
+            default: false,
+        }
     },
     { timestamps: true }
 );

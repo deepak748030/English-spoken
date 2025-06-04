@@ -4,7 +4,7 @@ import { sendResponse } from "../utils/response.js";
 // Create Teacher
 export const createTeacher = async (req, res) => {
     try {
-        const { teacherName, teacherNumber, teacherType } = req.body;
+        const { teacherName, teacherNumber, teacherType, } = req.body;
         let commission;
         if (teacherType == 'personal') {
             commission = 0;
@@ -13,8 +13,11 @@ export const createTeacher = async (req, res) => {
         }
         const existing = await Teacher.findOne({ teacherNumber });
         if (existing) return sendResponse(res, 400, "Teacher already exists");
-
-        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission });
+        let enableLive = false;
+        if (req.body.enableLive) {
+            enableLive = req.body.enableLive;
+        }
+        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission, enableLive });
         await newTeacher.save();
 
         sendResponse(res, 201, "Teacher created", newTeacher);
@@ -46,21 +49,23 @@ export const getTeacherById = async (req, res) => {
     }
 };
 
-// Update Teacher
 export const updateTeacher = async (req, res) => {
     try {
-        const { teacherName, teacherNumber, teacherType, isVerified } = req.body;
+        const { teacherName, teacherNumber, teacherType, isVerified, enableLive, commission } = req.body;
         const teacher = await Teacher.findById(req.params.id);
 
         if (!teacher) return sendResponse(res, 404, "Teacher not found");
 
         if (teacherName) teacher.teacherName = teacherName;
         if (teacherNumber) teacher.teacherNumber = teacherNumber;
+
         if (teacherType) {
             teacher.teacherType = teacherType;
-            teacher.commission = teacherType === 'other' ? req.body.commission : 0;
+            teacher.commission = teacherType === 'other' ? commission || 0 : 0;
         }
+
         if (typeof isVerified === 'boolean') teacher.isVerified = isVerified;
+        if (typeof enableLive === 'boolean') teacher.enableLive = enableLive;
 
         await teacher.save();
         sendResponse(res, 200, "Teacher updated", teacher);
@@ -68,6 +73,8 @@ export const updateTeacher = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
+
 
 // Delete Teacher
 export const deleteTeacher = async (req, res) => {

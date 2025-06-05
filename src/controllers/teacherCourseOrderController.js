@@ -41,7 +41,7 @@ export const getOrdersByTeacherId = async (req, res) => {
             })
             .populate({
                 path: 'courseId',
-                select: 'title price' // ✅ Only include title and price
+                select: 'title' // ✅ Only include title and price
             });
 
         sendResponse(res, 200, "Orders by teacher found", orders);

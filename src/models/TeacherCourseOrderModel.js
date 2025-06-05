@@ -9,7 +9,7 @@ const teacherCourseOrderSchema = new mongoose.Schema({
     },
     courseId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'TeacherCourse',
+        ref: 'Course',
         required: true
     },
     teacherId: {

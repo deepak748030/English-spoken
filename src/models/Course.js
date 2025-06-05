@@ -6,11 +6,16 @@ const courseSchema = new mongoose.Schema({
     banner: { type: String },
     type: {
         type: String,
-        // enum: ['english spoken course', 'other teacher course', 'exam english course'],
         required: true
+        // enum: ['english spoken course', 'other teacher', 'exam english course'],
     },
     introVideo: { type: String },
     description: { type: String },
+    teacherId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    }
 }, { timestamps: true });
 
 export default mongoose.model('Course', courseSchema);

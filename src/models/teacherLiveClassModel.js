@@ -24,7 +24,7 @@ const liveClassSchema = new mongoose.Schema({
     courseIds: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TeacherCourse'
+            ref: 'Course'
         }
     ]
 }, {

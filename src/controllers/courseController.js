@@ -53,3 +53,17 @@ export const getCoursesByType = async (req, res) => {
 }
 
 
+export const getCourseByTeacherId = async (req, res) => {
+    try {
+
+        const courses = await Course.find({ teacherId: req.params.teacherId });
+        if (courses.length === 0) {
+            return sendResponse(res, 404, 'No courses found for this teacher');
+        }
+        sendResponse(res, 200, 'Courses fetched', courses);
+
+    } catch (error) {
+        sendResponse(res, 500, err.message);
+    }
+}
+

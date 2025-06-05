@@ -5,7 +5,7 @@ import { sendResponse } from "../utils/response.js";
 // Create Ebook Controller
 export const createEbook = async (req, res) => {
     try {
-        const { title, description, rating, teacherId } = req.body;
+        const { title, description, rating, teacherId, price } = req.body;
         const imageFile = req.files?.image?.[0];
         const demoPdfFile = req.files?.demoPdf?.[0];
         const originalPdfFile = req.files?.originalPdf?.[0];
@@ -19,6 +19,7 @@ export const createEbook = async (req, res) => {
             description,
             rating,
             teacherId,
+            price,
             imageUrl: `${process.env.IMG_URL}${imageFile.filename}`,
             demoPdfUrl: `${process.env.IMG_URL}${demoPdfFile.filename}`,
             originalPdfUrl: `${process.env.IMG_URL}${originalPdfFile.filename}`,
@@ -36,7 +37,7 @@ export const createEbook = async (req, res) => {
 export const updateEbook = async (req, res) => {
     try {
         const ebookId = req.params.id;
-        const { title, description, rating, teacherId } = req.body;
+        const { title, description, rating, teacherId, price } = req.body;
 
         const ebook = await Ebook.findById(ebookId);
         if (!ebook) {
@@ -47,6 +48,7 @@ export const updateEbook = async (req, res) => {
         if (description) ebook.description = description;
         if (rating) ebook.rating = rating;
         if (teacherId) ebook.teacherId = teacherId;
+        if (price) ebook.price = price;
 
         const imageFile = req.files?.image?.[0];
         const demoPdfFile = req.files?.demoPdf?.[0];

@@ -32,15 +32,24 @@ export const getOrderById = async (req, res) => {
     }
 };
 
-// Get by Teacher ID
 export const getOrdersByTeacherId = async (req, res) => {
     try {
-        const orders = await TeacherCourseOrder.find({ teacherId: req.params.teacherId }).populate('userId courseId');
+        const orders = await TeacherCourseOrder.find({ teacherId: req.params.teacherId })
+            .populate({
+                path: 'userId',
+                select: 'mobileNo' // ✅ Only include mobileNo
+            })
+            .populate({
+                path: 'courseId',
+                select: 'title price' // ✅ Only include title and price
+            });
+
         sendResponse(res, 200, "Orders by teacher found", orders);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }
 };
+
 
 // Get by User ID
 export const getOrdersByUserId = async (req, res) => {

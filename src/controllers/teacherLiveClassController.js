@@ -1,5 +1,6 @@
 import LiveClass from '../models/teacherLiveClassModel.js';
 import { sendResponse } from '../utils/response.js';
+import mongoose from 'mongoose';
 
 export const createLiveClass = async (req, res) => {
     try {
@@ -9,7 +10,7 @@ export const createLiveClass = async (req, res) => {
             return sendResponse(res, 400, 'Title, YouTube URL, type, and teacherId are required');
         }
 
-        if (type === 'course' && (!courseIds || !Array.isArray(courseIds) || courseIds.length === 0)) {
+        if (type === 'course' && (!Array.isArray(courseIds) || courseIds.length === 0)) {
             return sendResponse(res, 400, 'At least one course must be selected for type "course"');
         }
 
@@ -18,7 +19,7 @@ export const createLiveClass = async (req, res) => {
             youtubeUrl,
             type,
             teacherId,
-            courseIds: type === 'course' ? courseIds : []
+            courseIds: type === 'course' ? courseIds.map(id => new mongoose.Types.ObjectId(id)) : []
         });
 
         await liveClass.save();
@@ -28,9 +29,10 @@ export const createLiveClass = async (req, res) => {
     }
 };
 
+
 export const getAllLiveClasses = async (req, res) => {
     try {
-        const classes = await LiveClass.find().populate('teacherId courseIds');
+        const classes = await LiveClass.find();
         sendResponse(res, 200, 'All live classes', classes);
     } catch (err) {
         sendResponse(res, 500, err.message);
@@ -40,7 +42,7 @@ export const getAllLiveClasses = async (req, res) => {
 export const getLiveClassesByTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const classes = await LiveClass.find({ teacherId }).populate('courseIds');
+        const classes = await LiveClass.find({ teacherId });
         sendResponse(res, 200, 'Live classes by teacher', classes);
     } catch (err) {
         sendResponse(res, 500, err.message);

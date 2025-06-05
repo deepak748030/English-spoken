@@ -34,7 +34,9 @@ import listeningPracticeRoutes from './routes/listeningPracticeRoutes.js';
 import ebookRoutes from './routes/ebookRoutes.js';
 import teacherRoutes from './routes/teacherRoutes.js';
 import premiumRoutes from './routes/premiumRoutes.js';
-import teacherTopicContentSubcategory from './routes/teacherTopicContentSubcategoryRoutes.js'
+import teacherTopicContentSubcategory from './routes/teacherTopicContentSubcategoryRoutes.js';
+import teacherLiveClassRoutes from './routes/taecherLiveClassRoutes.js';
+import teacherCourseOrderRoutes from './routes/teacherCourseOrderRoutes.js';
 
 dotenv.config();
 
@@ -72,9 +74,12 @@ app.use('/api/translation-expercise', translationExerciseRoutes);
 app.use('/api', courseSubscriptionRoutes);
 app.use('/api/premium', premiumRoutes);
 app.use('/api/teacher-topic-content', teacherTopicContentSubcategory);
+app.use('/api/teacher-live-class', teacherLiveClassRoutes);
+app.use('/api/teacher-course-orders', teacherCourseOrderRoutes);
 app.use('/api/course', lessonCourseRoutes);
 app.use('/api/course', topicCourseRoutes);
 app.use('/api/course', prizeCourseRoutes);
+
 
 app.use(errorHandler);
 

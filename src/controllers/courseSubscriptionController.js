@@ -14,8 +14,14 @@ export const createSubscription = async (req, res) => {
 export const getAllSubscriptions = async (req, res) => {
     try {
         const subscriptions = await CourseSubscription.find()
-            .populate('userId')
-            .populate('courseId');
+            .populate({
+                path: 'userId',
+                select: 'mobileNo'
+            })
+            .populate({
+                path: 'courseId',
+                select: 'title'
+            });
         sendResponse(res, 200, 'All subscriptions fetched', subscriptions);
     } catch (error) {
         sendResponse(res, 500, error.message);

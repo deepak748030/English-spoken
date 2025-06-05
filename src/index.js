@@ -37,6 +37,7 @@ import premiumRoutes from './routes/premiumRoutes.js';
 import teacherLiveClassRoutes from './routes/taecherLiveClassRoutes.js';
 import teacherCourseOrderRoutes from './routes/teacherCourseOrderRoutes.js';
 import teacherDashboardRoutes from './routes/teacherDashboardRoutes.js';
+import premiumOrderRoutes from './routes/premiumOrderRoutes.js';
 
 dotenv.config();
 
@@ -71,7 +72,7 @@ app.use('/api/teachers', teacherRoutes);
 app.use('/api', listeningPracticeRoutes);
 app.use('/api', dailyUseSentenceRoutes);
 app.use('/api/translation-expercise', translationExerciseRoutes);
-app.use('/api', courseSubscriptionRoutes);
+app.use('/api/course-order', courseSubscriptionRoutes);
 app.use('/api/premium', premiumRoutes);
 app.use('/api/teacher-live-class', teacherLiveClassRoutes);
 app.use('/api/teacher-course-orders', teacherCourseOrderRoutes);
@@ -79,6 +80,7 @@ app.use('/api/course', lessonCourseRoutes);
 app.use('/api/course', topicCourseRoutes);
 app.use('/api/course', prizeCourseRoutes);
 app.use('/api', teacherDashboardRoutes);
+app.use('/api/premium-orders', premiumOrderRoutes);
 
 
 app.use(errorHandler);

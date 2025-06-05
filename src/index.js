@@ -38,6 +38,7 @@ import teacherLiveClassRoutes from './routes/taecherLiveClassRoutes.js';
 import teacherCourseOrderRoutes from './routes/teacherCourseOrderRoutes.js';
 import teacherDashboardRoutes from './routes/teacherDashboardRoutes.js';
 import premiumOrderRoutes from './routes/premiumOrderRoutes.js';
+import ebookOrderRoutes from './routes/ebookOrderRoutes.js'
 
 dotenv.config();
 
@@ -81,6 +82,7 @@ app.use('/api/course', topicCourseRoutes);
 app.use('/api/course', prizeCourseRoutes);
 app.use('/api', teacherDashboardRoutes);
 app.use('/api/premium-orders', premiumOrderRoutes);
+app.use('/api/ebook-orders', ebookOrderRoutes)
 
 
 app.use(errorHandler);

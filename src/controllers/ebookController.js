@@ -88,39 +88,11 @@ export const getEbooksByTeacher = async (req, res) => {
     }
 };
 
+
 export const deleteEbook = async (req, res) => {
     try {
         await Ebook.findByIdAndDelete(req.params.id);
         sendResponse(res, 200, 'Ebook deleted');
-    } catch (err) {
-        sendResponse(res, 500, err.message);
-    }
-};
-
-export const createEbookOrder = async (req, res) => {
-    try {
-        const { userId, ebookId } = req.body;
-        const order = await EbookOrder.create({ userId, ebookId });
-        sendResponse(res, 201, 'Order placed', order);
-    } catch (err) {
-        console.log(err)
-        sendResponse(res, 500, err.message);
-    }
-};
-
-export const getAllOrders = async (_, res) => {
-    try {
-        const orders = await EbookOrder.find().populate('userId', 'name mobileNo').populate('ebookId');
-        sendResponse(res, 200, 'All ebook orders fetched', orders);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
-    }
-};
-
-export const getOrdersByUserId = async (req, res) => {
-    try {
-        const orders = await EbookOrder.find({ userId: req.params.userId }).populate('ebookId');
-        sendResponse(res, 200, 'User orders fetched', orders);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }

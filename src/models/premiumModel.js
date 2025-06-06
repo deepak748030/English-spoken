@@ -6,10 +6,26 @@ const premiumSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        price: {
+
+        // Subscription Prices by Duration
+        oneMonthPrice: {
             type: Number,
             required: true,
         },
+        threeMonthPrice: {
+            type: Number,
+            required: true,
+        },
+        sixMonthPrice: {
+            type: Number,
+            required: true,
+        },
+        twelveMonthPrice: {
+            type: Number,
+            required: true,
+        },
+
+        // Media Usage Limits
         audioMinutes: {
             type: Number,
             default: 0,
@@ -19,8 +35,7 @@ const premiumSchema = new mongoose.Schema(
             default: 0,
         },
 
-
-        // New field for storing selected Course IDs
+        // Included Courses
         courseIds: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +43,7 @@ const premiumSchema = new mongoose.Schema(
             },
         ],
 
-        // New field for selected Ebook IDs
+        // Included Ebooks
         ebookIds: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +51,7 @@ const premiumSchema = new mongoose.Schema(
             },
         ],
 
+        // Features
         englishGrammar: {
             type: Boolean,
             default: false,
@@ -79,7 +95,7 @@ const premiumSchema = new mongoose.Schema(
         dailyUseSentences: {
             type: Boolean,
             default: false,
-        }
+        },
     },
     { timestamps: true }
 );

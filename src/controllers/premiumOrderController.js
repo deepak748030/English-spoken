@@ -1,8 +1,10 @@
 import PremiumOrder from '../models/PremiumOrderModel.js';
+import CourseSubscription from '../models/courseSubscriptionModel.js';
 import { sendResponse } from '../utils/response.js';
 
 export const createPremiumOrder = async (req, res) => {
     try {
+        // const orderCourse = await CourseSubscription.create 
         const order = await PremiumOrder.create(req.body);
         sendResponse(res, 201, 'Premium order created', order);
     } catch (error) {

@@ -7,7 +7,6 @@ import { sendResponse } from '../utils/response.js';
 
 export const createPremiumOrder = async (req, res) => {
     try {
-        console.log(req.body)
         const { userId, premiumId, startDate, endDate } = req.body;
 
         // Fetch Premium details

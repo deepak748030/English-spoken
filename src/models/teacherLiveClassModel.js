@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const liveClassSchema = new mongoose.Schema({
+    status: {
+        type: String,
+        enum: ['live', 'upcoming', 'ended'],
+        required: true,
+    },
     title: {
         type: String,
         required: true,

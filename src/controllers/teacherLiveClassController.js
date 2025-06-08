@@ -2,12 +2,13 @@ import LiveClass from '../models/teacherLiveClassModel.js';
 import { sendResponse } from '../utils/response.js';
 import mongoose from 'mongoose';
 
+// ✅ CREATE
 export const createLiveClass = async (req, res) => {
     try {
-        const { title, youtubeUrl, type, teacherId, courseIds } = req.body;
+        const { title, youtubeUrl, type, teacherId, courseIds, status } = req.body;
 
-        if (!title || !youtubeUrl || !type || !teacherId) {
-            return sendResponse(res, 400, 'Title, YouTube URL, type, and teacherId are required');
+        if (!title || !youtubeUrl || !type || !teacherId || !status) {
+            return sendResponse(res, 400, 'Title, YouTube URL, type, teacherId, and status are required');
         }
 
         if (type === 'course' && (!Array.isArray(courseIds) || courseIds.length === 0)) {
@@ -19,6 +20,7 @@ export const createLiveClass = async (req, res) => {
             youtubeUrl,
             type,
             teacherId,
+            status,
             courseIds: type === 'course' ? courseIds.map(id => new mongoose.Types.ObjectId(id)) : []
         });
 
@@ -29,7 +31,7 @@ export const createLiveClass = async (req, res) => {
     }
 };
 
-
+// ✅ GET ALL
 export const getAllLiveClasses = async (req, res) => {
     try {
         const classes = await LiveClass.find();
@@ -39,6 +41,7 @@ export const getAllLiveClasses = async (req, res) => {
     }
 };
 
+// ✅ GET BY TEACHER
 export const getLiveClassesByTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
@@ -49,10 +52,11 @@ export const getLiveClassesByTeacher = async (req, res) => {
     }
 };
 
+// ✅ UPDATE
 export const updateLiveClass = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, youtubeUrl, type, courseIds } = req.body;
+        const { title, youtubeUrl, type, courseIds, status } = req.body;
 
         const liveClass = await LiveClass.findById(id);
         if (!liveClass) return sendResponse(res, 404, 'Live class not found');
@@ -60,6 +64,7 @@ export const updateLiveClass = async (req, res) => {
         if (title) liveClass.title = title;
         if (youtubeUrl) liveClass.youtubeUrl = youtubeUrl;
         if (type) liveClass.type = type;
+        if (status) liveClass.status = status;
 
         if (type === 'course') {
             if (!courseIds || courseIds.length === 0) {
@@ -77,6 +82,7 @@ export const updateLiveClass = async (req, res) => {
     }
 };
 
+// ✅ DELETE
 export const deleteLiveClass = async (req, res) => {
     try {
         const { id } = req.params;

@@ -84,7 +84,7 @@ export const getPremiumOrdersByUserId = async (req, res) => {
     try {
         const orders = await PremiumOrder.find({ userId: req.params.userId })
             .populate({ path: 'userId', select: 'mobileNo' })
-            .populate({ path: 'premiumId', select: 'title' });
+            .populate({ path: 'premiumId' });
         sendResponse(res, 200, 'Premium orders by user fetched', orders);
     } catch (error) {
         sendResponse(res, 500, error.message);

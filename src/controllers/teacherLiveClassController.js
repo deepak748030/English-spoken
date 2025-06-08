@@ -93,3 +93,14 @@ export const deleteLiveClass = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
+
+export const getOnlyLiveClasses = async (req, res) => {
+    try {
+        const liveClasses = await LiveClass.find({ status: "live" }).populate("teacherId");
+        sendResponse(res, 200, 'Live status classes', liveClasses);
+    } catch (error) {
+        sendResponse(res, 500, error.message);
+    }
+};
+

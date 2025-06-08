@@ -18,7 +18,7 @@ const liveClassSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['free', 'subscription', 'course'],
+        enum: ['free', 'subscription', 'course', 'one-to-one-class', 'group-class', 'trainer-talk'],
         required: true
     },
     teacherId: {

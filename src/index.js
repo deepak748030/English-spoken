@@ -41,7 +41,8 @@ import premiumOrderRoutes from './routes/premiumOrderRoutes.js';
 import ebookOrderRoutes from './routes/ebookOrderRoutes.js'
 import userClassesRoutes from './routes/userClassesRoutes.js';
 import userMinutesRoutes from './routes/userMinutesRoutes.js';
-import timeSlots from './routes/timeSlotRoutes.js'
+import timeSlots from './routes/timeSlotRoutes.js';
+import planRoutes from './routes/planRoutes.js'
 
 dotenv.config();
 
@@ -88,7 +89,8 @@ app.use('/api/premium-orders', premiumOrderRoutes);
 app.use('/api/ebook-orders', ebookOrderRoutes)
 app.use('/api/user-classes', userClassesRoutes);
 app.use('/api/user-minutes', userMinutesRoutes);
-app.use('/api/time-slots', timeSlots)
+app.use('/api/time-slots', timeSlots);
+app.use('/api/plans', planRoutes);
 
 
 app.use(errorHandler);

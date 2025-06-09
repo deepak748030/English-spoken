@@ -9,7 +9,9 @@ import {
     deleteTimeSlotById,
     getAllBookedTeacherSlots,
     getBookedSlotsByTeacherId,
-    updateTimeSlots
+    updateTimeSlots,
+    getTimeSlotsByTeacherAndType,
+    updateSingleTimeSlotById
 } from '../controllers/timeSlotController.js';
 
 const router = express.Router();
@@ -38,6 +40,10 @@ router.get('/teachers/booked', getAllBookedTeacherSlots);
 router.get('/teacher/:teacherId/booked', getBookedSlotsByTeacherId);
 
 router.patch('/:id', updateTimeSlots);
+
+router.get('/teacher/:teacherId/type/:type', getTimeSlotsByTeacherAndType);
+
+router.patch('/update-slot/:id', updateSingleTimeSlotById)
 
 
 export default router;

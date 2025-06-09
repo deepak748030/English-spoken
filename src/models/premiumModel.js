@@ -35,6 +35,20 @@ const premiumSchema = new mongoose.Schema(
             default: 0,
         },
 
+        // Class Access Limits
+        oneToOneClasses: {
+            type: Number,
+            default: 0,
+        },
+        groupClasses: {
+            type: Number,
+            default: 0,
+        },
+        trainerTalkClasses: {
+            type: Number,
+            default: 0,
+        },
+
         // Included Courses
         courseIds: [
             {

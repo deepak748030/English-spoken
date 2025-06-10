@@ -41,8 +41,8 @@ export const deleteCourse = async (req, res) => {
 
 export const getCoursesByType = async (req, res) => {
     try {
-        console.log(req.params.type)
-        const courses = await Course.find({ type: req.params.type });
+
+        const courses = await Course.find({ type: req.params.type }).populate('teacherId', 'teacherName');
         if (courses.length === 0) {
             return sendResponse(res, 404, 'No courses found for this type');
         }

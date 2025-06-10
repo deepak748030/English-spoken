@@ -13,6 +13,11 @@ const userPlanSchema = new mongoose.Schema({
         ref: 'Plan',
         required: true
     },
+    type: {
+        type: String,
+        enum: ['one-to-one-class', 'group-class', 'trainer-talk'],
+        required: true
+    },
 
     planType: {
         type: String,

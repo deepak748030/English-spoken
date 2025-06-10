@@ -1,9 +1,10 @@
+import mongoose from 'mongoose';
+import moment from 'moment-timezone';
 import UserPlan from '../models/UserPlanModel.js';
 import Plan from '../models/planModel.js';
-import moment from 'moment-timezone';
 import { sendResponse } from '../utils/response.js'
-import mongoose from 'mongoose';
 
+// Updated createUserPlan Controller
 export const createUserPlan = async (req, res) => {
     try {
         const { userId, planId } = req.body;
@@ -15,10 +16,11 @@ export const createUserPlan = async (req, res) => {
         const isOneTime = plan.planType === 'one-time';
 
         if (isOneTime) {
-            // Check for existing active one-time plan
+            // Check for existing active one-time plan with matching type
             const existingPlan = await UserPlan.findOne({
                 userId,
                 planType: 'one-time',
+                type: plan.type,
                 status: 'active'
             });
 
@@ -44,6 +46,7 @@ export const createUserPlan = async (req, res) => {
             userId,
             planId,
             planType: plan.planType,
+            type: plan.type,
             remainingClassCount: plan.classCount,
             expiryDate
         });
@@ -56,14 +59,21 @@ export const createUserPlan = async (req, res) => {
     }
 };
 
+// Updated deductUserClass Controller
 export const deductUserClass = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const { userId, type } = req.body;
+
+        // Validate type
+        if (!['one-to-one-class', 'group-class', 'trainer-talk'].includes(type)) {
+            return sendResponse(res, 400, 'Invalid type specified');
+        }
 
         // Step 1: Check subscription plan first (sorted by purchase time)
         const subscriptionPlan = await UserPlan.findOne({
             userId,
             planType: 'subscription',
+            type,
             status: 'active',
             expiryDate: { $gte: moment.tz('Asia/Kolkata').startOf('day').toDate() },
             remainingClassCount: { $gt: 0 }
@@ -84,6 +94,7 @@ export const deductUserClass = async (req, res) => {
         const oneTimePlan = await UserPlan.findOne({
             userId,
             planType: 'one-time',
+            type,
             status: 'active',
             remainingClassCount: { $gt: 0 }
         });
@@ -99,7 +110,7 @@ export const deductUserClass = async (req, res) => {
             return sendResponse(res, 200, 'Class deducted from one-time plan', { plan: oneTimePlan });
         }
 
-        return sendResponse(res, 400, 'No available classes left in any plan');
+        return sendResponse(res, 400, 'No available classes left in any plan for the specified type');
 
     } catch (err) {
         console.error(err);
@@ -107,6 +118,7 @@ export const deductUserClass = async (req, res) => {
     }
 };
 
+// Updated getTotalClasses Controller
 export const getTotalClasses = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -127,7 +139,7 @@ export const getTotalClasses = async (req, res) => {
             },
             {
                 $group: {
-                    _id: null,
+                    _id: '$type',
                     totalRemainingClasses: { $sum: '$remainingClassCount' },
                     subscriptionClasses: {
                         $sum: {
@@ -151,18 +163,23 @@ export const getTotalClasses = async (req, res) => {
             }
         ]);
 
-        // If no active plans with classes are found, return zeros
-        const result = totalClasses.length > 0
-            ? {
-                totalRemainingClasses: totalClasses[0].totalRemainingClasses,
-                subscriptionClasses: totalClasses[0].subscriptionClasses,
-                oneTimeClasses: totalClasses[0].oneTimeClasses
-            }
-            : {
-                totalRemainingClasses: 0,
-                subscriptionClasses: 0,
-                oneTimeClasses: 0
-            };
+        // Format result by type, defaulting to 0 if no plans exist for a type
+        const types = ['one-to-one-class', 'group-class', 'trainer-talk'];
+        const result = {};
+        types.forEach(type => {
+            const found = totalClasses.find(item => item._id === type);
+            result[type] = found
+                ? {
+                    totalRemainingClasses: found.totalRemainingClasses,
+                    subscriptionClasses: found.subscriptionClasses,
+                    oneTimeClasses: found.oneTimeClasses
+                }
+                : {
+                    totalRemainingClasses: 0,
+                    subscriptionClasses: 0,
+                    oneTimeClasses: 0
+                };
+        });
 
         return sendResponse(res, 200, 'Total classes retrieved successfully', result);
 

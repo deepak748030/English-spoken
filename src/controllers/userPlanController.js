@@ -188,3 +188,32 @@ export const getTotalClasses = async (req, res) => {
         return sendResponse(res, 500, `Error while retrieving total classes: ${err.message}`);
     }
 };
+
+
+export const getUserPlans = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Validate userId format
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return sendResponse(res, 400, 'Invalid user ID format');
+        }
+
+        // Find all plans for the user, sorted by createdAt in descending order
+        const userPlans = await UserPlan.find({
+            userId
+        })
+            .sort({ createdAt: -1 })
+            .populate('planId', 'title amount type planType classCount durationInDays');
+
+        if (!userPlans || userPlans.length === 0) {
+            return sendResponse(res, 404, 'No plans found for this user');
+        }
+
+        return sendResponse(res, 200, 'User plans retrieved successfully', userPlans);
+
+    } catch (err) {
+        console.error('Error in getUserPlans:', err);
+        return sendResponse(res, 500, `Error while retrieving user plans: ${err.message}`);
+    }
+};

@@ -3,24 +3,42 @@ import Settings from '../models/settingsModel.js';
 import logger from '../config/logger.js';
 import { sendResponse } from '../utils/response.js';
 
+
 export const upsertSettings = async (req, res, next) => {
     try {
-        const { maintenance, termsAndConditions, privacyPolicy } = req.body;
+        const {
+            maintenance,
+            termsAndConditions,
+            privacyPolicy,
+            PerAudioMinuteCost,
+            PerVideoMinuteCost,
+            DailyFreeAudioMinutes,
+            DailyFreeVideoMinutes
+        } = req.body;
+
         const updateData = {};
+
         if (maintenance !== undefined) updateData.maintenance = maintenance;
         if (termsAndConditions !== undefined) updateData.termsAndConditions = termsAndConditions;
         if (privacyPolicy !== undefined) updateData.privacyPolicy = privacyPolicy;
 
+        if (PerAudioMinuteCost !== undefined) updateData.PerAudioMinuteCost = PerAudioMinuteCost;
+        if (PerVideoMinuteCost !== undefined) updateData.PerVideoMinuteCost = PerVideoMinuteCost;
+        if (DailyFreeAudioMinutes !== undefined) updateData.DailyFreeAudioMinutes = DailyFreeAudioMinutes;
+        if (DailyFreeVideoMinutes !== undefined) updateData.DailyFreeVideoMinutes = DailyFreeVideoMinutes;
+
         const settings = await Settings.findOneAndUpdate(
-            {}, // Empty filter to match any existing settings document
+            {}, // Match any existing settings document
             { $set: updateData },
             { upsert: true, new: true, runValidators: true }
         );
+
         logger.info(`Settings ${settings.isNew ? 'created' : 'updated'}`);
         sendResponse(res, 200, `Settings ${settings.isNew ? 'created' : 'updated'}`, settings);
-    } catch (err) { next(err); }
+    } catch (err) {
+        next(err);
+    }
 };
-
 export const getSettings = async (req, res, next) => {
     try {
         const settings = await Settings.findOne({});

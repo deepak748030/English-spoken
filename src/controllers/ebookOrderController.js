@@ -27,8 +27,8 @@ export const getAllEbookOrders = async (req, res) => {
 export const getEbookOrdersByUserId = async (req, res) => {
     try {
         const orders = await EbookOrder.find({ userId: req.params.userId })
-            .populate({ path: 'userId', select: 'mobileNo' })
-            .populate({ path: 'ebookId', select: 'title price' });
+            .populate({ path: 'userId' })
+            .populate({ path: 'ebookId' });
         sendResponse(res, 200, 'Ebook orders by user fetched', orders);
     } catch (error) {
         sendResponse(res, 500, error.message);

@@ -153,7 +153,7 @@ export const getAllTeachersWithFreeSlots = async (req, res) => {
     try {
         // Find all TimeSlot documents and populate teacher info
         const timeSlots = await TimeSlot.find()
-            .populate('teacherId', 'teacherName');
+            .populate('teacherId');
 
         // Filter slots to only include free (not booked) slots
         const freeSlotsByTeacher = timeSlots.map(ts => {

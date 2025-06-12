@@ -4,7 +4,10 @@ import { sendResponse } from "../utils/response.js";
 // Create Teacher
 export const createTeacher = async (req, res) => {
     try {
-        const { teacherName, teacherNumber, teacherType, } = req.body;
+        const { teacherName, teacherNumber, teacherType,
+            introVideoUrl = '',   // default to ''
+            about = ''            // default to ''
+        } = req.body;
         let commission;
         if (teacherType == 'personal') {
             commission = 0;
@@ -17,7 +20,7 @@ export const createTeacher = async (req, res) => {
         if (req.body.enableLive) {
             enableLive = req.body.enableLive;
         }
-        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission, enableLive });
+        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission, enableLive, introVideoUrl, about });
         await newTeacher.save();
 
         sendResponse(res, 201, "Teacher created", newTeacher);
@@ -51,9 +54,18 @@ export const getTeacherById = async (req, res) => {
 
 export const updateTeacher = async (req, res) => {
     try {
-        const { teacherName, teacherNumber, teacherType, isVerified, enableLive, commission } = req.body;
-        const teacher = await Teacher.findById(req.params.id);
+        const {
+            teacherName,
+            teacherNumber,
+            teacherType,
+            isVerified,
+            enableLive,
+            commission,
+            introVideoUrl,
+            about
+        } = req.body;
 
+        const teacher = await Teacher.findById(req.params.id);
         if (!teacher) return sendResponse(res, 404, "Teacher not found");
 
         if (teacherName) teacher.teacherName = teacherName;
@@ -66,6 +78,10 @@ export const updateTeacher = async (req, res) => {
 
         if (typeof isVerified === 'boolean') teacher.isVerified = isVerified;
         if (typeof enableLive === 'boolean') teacher.enableLive = enableLive;
+
+        // Optional fields
+        if (introVideoUrl !== undefined) teacher.introVideoUrl = introVideoUrl;
+        if (about !== undefined) teacher.about = about;
 
         await teacher.save();
         sendResponse(res, 200, "Teacher updated", teacher);

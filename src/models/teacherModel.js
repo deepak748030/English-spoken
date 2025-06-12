@@ -27,6 +27,14 @@ const teacherSchema = new mongoose.Schema({
     enableLive: {
         type: Boolean,
         default: false
+    },
+    introVideoUrl: {
+        type: String,
+        default: ''
+    },
+    about: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true

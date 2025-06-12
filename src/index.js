@@ -43,7 +43,8 @@ import userClassesRoutes from './routes/userClassesRoutes.js';
 import userMinutesRoutes from './routes/userMinutesRoutes.js';
 import timeSlots from './routes/timeSlotRoutes.js';
 import planRoutes from './routes/planRoutes.js';
-import userPlanRoutes from './routes/userPlanRoutes.js'
+import userPlanRoutes from './routes/userPlanRoutes.js';
+import audioVideoPlanRoutes from './routes/audioVideoPlanRoutes.js'
 
 dotenv.config();
 
@@ -92,7 +93,8 @@ app.use('/api/user-classes', userClassesRoutes);
 app.use('/api/user-minutes', userMinutesRoutes);
 app.use('/api/time-slots', timeSlots);
 app.use('/api/plans', planRoutes);
-app.use('/api/user-plan', userPlanRoutes)
+app.use('/api/user-plan', userPlanRoutes);
+app.use('/api/audio-video-plans', audioVideoPlanRoutes)
 
 
 app.use(errorHandler);

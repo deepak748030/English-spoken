@@ -23,6 +23,10 @@ const roomSchema = new mongoose.Schema({
         type: Number,
         default: 10, // default max users
         min: 1
+    },
+    jitsiUrl: {
+        type: String,
+        default: ''
     }
 }, { timestamps: true });
 

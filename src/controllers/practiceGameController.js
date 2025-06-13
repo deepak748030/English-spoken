@@ -6,13 +6,13 @@ const cleanText = (input) => input.replace(/[.?]/g, '');
 
 export const createPracticeGame = async (req, res) => {
     try {
-        const { subCategory, text } = req.body;
+        const { subCategory, text, question } = req.body;
         if (!subCategory || !text) {
             return sendResponse(res, 400, "subCategory and text are required");
         }
 
         const clean = cleanText(text);
-        const newGame = await PracticeGame.create({ subCategory, text: clean });
+        const newGame = await PracticeGame.create({ subCategory, text: clean, question });
 
         sendResponse(res, 201, "Practice game created", newGame);
     } catch (error) {
@@ -39,20 +39,31 @@ export const getPracticeGameById = async (req, res) => {
     }
 };
 
+
 export const updatePracticeGame = async (req, res) => {
     try {
+        // Remove special characters from text, if present
         if (req.body.text) {
             req.body.text = req.body.text.replace(/[.?]/g, '');
         }
 
-        const updated = await PracticeGame.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updated) return sendResponse(res, 404, "Game not found");
+        const updated = await PracticeGame.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
 
-        sendResponse(res, 200, "Practice game updated", updated);
+        if (!updated) {
+            return sendResponse(res, 404, "Practice game not found");
+        }
+
+        sendResponse(res, 200, "Practice game updated successfully", updated);
     } catch (error) {
-        sendResponse(res, 500, "Error updating game");
+        console.error(error);
+        sendResponse(res, 500, "Server error while updating game");
     }
 };
+
 
 export const deletePracticeGame = async (req, res) => {
     try {

@@ -6,6 +6,10 @@ const practiceGameSchema = new mongoose.Schema({
         ref: 'SubCategory',
         required: true
     },
+    question: {
+        type: String,
+        required: true
+    },
     text: {
         type: String,
         required: true

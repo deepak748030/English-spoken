@@ -1,5 +1,7 @@
 import Teacher from "../models/teacherModel.js";
 import { sendResponse } from "../utils/response.js";
+import fs from 'fs';
+import path from 'path';
 
 // Create Teacher
 export const createTeacher = async (req, res) => {
@@ -20,7 +22,11 @@ export const createTeacher = async (req, res) => {
         if (req.body.enableLive) {
             enableLive = req.body.enableLive;
         }
-        const newTeacher = new Teacher({ teacherName, teacherNumber, teacherType, commission, enableLive, introVideoUrl, about });
+
+        // ✅ Handle file upload
+        const profileImg = req.file ? `${process.env.IMG_URL}${req.file.filename}` : 'https://img.freepik.com/premium-vector/stylish-default-user-profile-photo-avatar-vector-illustration_664995-353.jpg';
+
+        const newTeacher = new Teacher({ profileImg, teacherName, teacherNumber, teacherType, commission, enableLive, introVideoUrl, about });
         await newTeacher.save();
 
         sendResponse(res, 201, "Teacher created", newTeacher);
@@ -52,6 +58,7 @@ export const getTeacherById = async (req, res) => {
     }
 };
 
+
 export const updateTeacher = async (req, res) => {
     try {
         const {
@@ -79,28 +86,55 @@ export const updateTeacher = async (req, res) => {
         if (typeof isVerified === 'boolean') teacher.isVerified = isVerified;
         if (typeof enableLive === 'boolean') teacher.enableLive = enableLive;
 
-        // Optional fields
         if (introVideoUrl !== undefined) teacher.introVideoUrl = introVideoUrl;
         if (about !== undefined) teacher.about = about;
+
+        // ✅ Handle image update
+        if (req.file) {
+            // Get the old image filename from the full URL
+            const oldImgPath = teacher.profileImg.replace(process.env.IMG_URL, '');
+
+            const fullOldImgPath = path.join('uploads', oldImgPath);
+            if (fs.existsSync(fullOldImgPath)) {
+                fs.unlinkSync(fullOldImgPath); // Delete old image
+            }
+
+            teacher.profileImg = `${process.env.IMG_URL}${req.file.filename}`;
+        }
 
         await teacher.save();
         sendResponse(res, 200, "Teacher updated", teacher);
     } catch (err) {
+        console.error(err);
         sendResponse(res, 500, err.message);
     }
 };
-
 
 
 // Delete Teacher
 export const deleteTeacher = async (req, res) => {
     try {
+        const teacher = await Teacher.findById(req.params.id);
+        if (!teacher) return sendResponse(res, 404, "Teacher not found");
+
+        // ✅ Remove image file
+        if (teacher.profileImg) {
+            const imgPath = teacher.profileImg.replace(process.env.IMG_URL, '');
+            const fullImgPath = path.join('uploads', imgPath);
+
+            if (fs.existsSync(fullImgPath)) {
+                fs.unlinkSync(fullImgPath);
+            }
+        }
+
         await Teacher.findByIdAndDelete(req.params.id);
         sendResponse(res, 200, "Teacher deleted");
     } catch (err) {
+        console.error(err);
         sendResponse(res, 500, err.message);
     }
 };
+
 
 export const teacherLogin = async (req, res) => {
     try {

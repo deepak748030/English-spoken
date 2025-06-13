@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 
 const teacherSchema = new mongoose.Schema({
+    profileImg: {
+        type: String
+    },
     teacherName: {
         type: String,
         required: true,

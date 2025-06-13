@@ -1,4 +1,5 @@
 import express from "express";
+import upload from "../middleware/multer.js"; // ✅ Import Multer middleware
 import {
     createTeacher,
     getAllTeachers,
@@ -10,11 +11,13 @@ import {
 
 const router = express.Router();
 
-router.post("/", createTeacher);
+// ✅ Update POST route to handle file (form-data)
+router.post("/", upload.single("profileImg"), createTeacher);
+
 router.post('/login', teacherLogin);
 router.get("/", getAllTeachers);
 router.get("/:id", getTeacherById);
-router.patch("/:id", updateTeacher);
+router.patch("/:id", upload.single("profileImg"), updateTeacher);
 router.delete("/:id", deleteTeacher);
 
 export default router;

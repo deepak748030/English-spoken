@@ -4,7 +4,8 @@ import {
     getAllRooms,
     joinRoom,
     updateRoom,
-    deleteRoom
+    deleteRoom,
+    leaveRoom
 } from '../controllers/roomController.js';
 
 const router = express.Router();
@@ -23,5 +24,7 @@ router.patch('/:id', updateRoom);
 
 // Delete a room
 router.delete('/:id', deleteRoom);
+
+router.post('/leave', leaveRoom); // ✅ newly added
 
 export default router;

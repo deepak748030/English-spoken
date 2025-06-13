@@ -10,10 +10,10 @@ const roomSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    teacherId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Teacher',
-        default: null
+    roomType: {
+        type: String,
+        enum: ['audio', 'video'],
+        default: ''
     },
     users: [{
         type: mongoose.Schema.Types.ObjectId,

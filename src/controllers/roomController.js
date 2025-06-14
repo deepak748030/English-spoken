@@ -1,4 +1,6 @@
 import Room from '../models/roomModel.js';
+import UserMinutes from '../models/usersMinutesModel.js';
+import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 import { sendResponse } from '../utils/response.js';
 
 // ✅ Create a new room
@@ -35,6 +37,7 @@ export const getAllRooms = async (req, res) => {
 };
 
 // ✅ Join a room
+
 export const joinRoom = async (req, res) => {
     try {
         const { roomId, userId } = req.body;
@@ -50,10 +53,44 @@ export const joinRoom = async (req, res) => {
             return sendResponse(res, 403, 'Room user limit reached');
         }
 
+        // Step 1: Get minutes from UserMinutes model
+        const userMinutes = await UserMinutes.findOne({ userId });
+
+        let availableAudioMinutes = 0;
+        let availableVideoMinutes = 0;
+
+        if (userMinutes) {
+            availableAudioMinutes += userMinutes.lifetimeAudioMinutes;
+            availableVideoMinutes += userMinutes.lifetimeVideoMinutes;
+        }
+
+        // Step 2: Get active AudioVideoOrder and add minutes
+        const activeOrder = await AudioVideoOrder.findOne({
+            userId,
+            status: 'active',
+            expireAt: { $gt: new Date() }
+        });
+
+        if (activeOrder) {
+            availableAudioMinutes += activeOrder.audioMinutes;
+            availableVideoMinutes += activeOrder.videoMinutes;
+        }
+
+        // Step 3: Based on roomType, only return the relevant minutes
+        const responseData = {
+            room,
+            availableMinutes: room.roomType === 'audio'
+                ? availableAudioMinutes
+                : room.roomType === 'video'
+                    ? availableVideoMinutes
+                    : 0
+        };
+
+        // Step 4: Add user to room
         room.users.push(userId);
         await room.save();
 
-        sendResponse(res, 200, 'User joined the room', room);
+        sendResponse(res, 200, 'User joined the room', responseData);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }

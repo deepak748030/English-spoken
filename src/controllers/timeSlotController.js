@@ -68,7 +68,7 @@ export const getTimeSlotsByUserId = async (req, res) => {
 
         // Find all TimeSlot documents that have any slot booked by userId
         const timeSlots = await TimeSlot.find({ 'slots.bookedBy': userId })
-            .populate('teacherId', 'teacherName');
+            .populate('teacherId');
 
         // Filter slots inside each TimeSlot document
         const filteredTimeSlots = timeSlots.map(ts => {

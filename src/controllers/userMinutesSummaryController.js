@@ -1,18 +1,28 @@
 import UserMinutesSummary from '../models/userMinutesSummaryModel.js';
+import UserMinutes from '../models/usersMinutesModel.js';
+import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 import { sendResponse } from '../utils/response.js';
 
-// ✅ Get Summary by User ID
+// ✅ Get Summary, User Minutes, and Active AudioVideoOrder by User ID
 export const getUserMinutesSummaryByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const summary = await UserMinutesSummary.findOne({ userId });
+        const [summary, userMinutes, audioVideoOrder] = await Promise.all([
+            UserMinutesSummary.findOne({ userId }),
+            UserMinutes.findOne({ userId }),
+            AudioVideoOrder.findOne({ userId, status: 'active' })  // Only active order
+        ]);
 
-        if (!summary) {
-            return sendResponse(res, 404, 'User minutes summary not found');
+        if (!summary && !userMinutes && !audioVideoOrder) {
+            return sendResponse(res, 404, 'No data found for user');
         }
 
-        return sendResponse(res, 200, 'Fetched user minutes summary', summary);
+        return sendResponse(res, 200, 'Fetched user minutes, summary, and active audio/video order', {
+            summary,
+            userMinutes,
+            audioVideoOrder
+        });
     } catch (error) {
         return sendResponse(res, 500, error.message);
     }

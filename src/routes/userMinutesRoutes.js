@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-    createUserMinutes,
+    createOrUpdateUserMinutes,
     getAllUserMinutes,
     getUserMinutesByUserId,
     updateUserMinutes,
@@ -9,10 +9,10 @@ import {
 
 const router = express.Router();
 
-router.post('/', createUserMinutes);
-router.get('/', getAllUserMinutes);
-router.get('/user/:userId', getUserMinutesByUserId);
-router.patch('/:id', updateUserMinutes);
-router.delete('/:id', deleteUserMinutes);
+router.post('/', createOrUpdateUserMinutes); // create or update
+router.get('/', getAllUserMinutes); // get all
+router.get('/:userId', getUserMinutesByUserId); // get by userId
+router.patch('/:id', updateUserMinutes); // update by MongoDB id
+router.delete('/:id', deleteUserMinutes); // delete by MongoDB id
 
 export default router;

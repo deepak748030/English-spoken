@@ -7,15 +7,19 @@ const userMinutesOrderSchema = new mongoose.Schema({
         required: true
     },
 
-    userMinutesId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'UserMinutes',
-        required: true
-    },
-
     amountPaid: {
         type: Number,
         required: true
+    },
+
+    audioMinutes: {
+        type: Number,
+        default: 0
+    },
+
+    videoMinutes: {
+        type: Number,
+        default: 0
     },
 
     dailyAudioMinutes: {

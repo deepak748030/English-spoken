@@ -1,55 +1,82 @@
 import UserMinutes from '../models/usersMinutesModel.js';
 import { sendResponse } from '../utils/response.js';
 
-// Create
-export const createUserMinutes = async (req, res) => {
+// ✅ Create or Update (Upsert)
+export const createOrUpdateUserMinutes = async (req, res) => {
     try {
-        const userMinutes = await UserMinutes.create(req.body);
-        sendResponse(res, 201, 'User minutes created', userMinutes);
-    } catch (error) {
-        sendResponse(res, 500, error.message);
+        const { userId, dailyAudioMinutes, dailyVideoMinutes, lifetimeAudioMinutes, lifetimeVideoMinutes } = req.body;
+
+        const userMinutes = await UserMinutes.findOneAndUpdate(
+            { userId },
+            {
+                $set: {
+                    dailyAudioMinutes,
+                    dailyVideoMinutes,
+                    lifetimeAudioMinutes,
+                    lifetimeVideoMinutes
+                }
+            },
+            { new: true, upsert: true, runValidators: true }
+        );
+
+        return sendResponse(res, 200, 'User minutes saved successfully', userMinutes);
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Get All (simple)
+// ✅ Get All Users' Minutes
 export const getAllUserMinutes = async (req, res) => {
     try {
-        const allMinutes = await UserMinutes.find().populate("userId", "mobileNo");
-        sendResponse(res, 200, 'All user minutes fetched', allMinutes);
-    } catch (error) {
-        sendResponse(res, 500, error.message);
+        const all = await UserMinutes.find().populate('userId', 'name mobileNo');
+        return sendResponse(res, 200, 'Fetched all user minutes', all);
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Get By User ID (simple)
+// ✅ Get by userId
 export const getUserMinutesByUserId = async (req, res) => {
     try {
-        const userMinutes = await UserMinutes.findOne({ userId: req.params.userId });
-        if (!userMinutes) return sendResponse(res, 404, 'User minutes not found');
-        sendResponse(res, 200, 'User minutes fetched', userMinutes);
-    } catch (error) {
-        sendResponse(res, 500, error.message);
+        const { userId } = req.params;
+
+        const minutes = await UserMinutes.findOne({ userId }).populate('userId', 'name mobileNo');
+        if (!minutes) return sendResponse(res, 404, 'No user minutes found');
+
+        return sendResponse(res, 200, 'Fetched user minutes', minutes);
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Update
+// ✅ Update using PATCH
 export const updateUserMinutes = async (req, res) => {
     try {
-        const updated = await UserMinutes.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updated) return sendResponse(res, 404, 'User minutes not found');
-        sendResponse(res, 200, 'User minutes updated', updated);
-    } catch (error) {
-        sendResponse(res, 500, error.message);
+        const { id } = req.params;
+        const updates = req.body;
+
+        const updated = await UserMinutes.findByIdAndUpdate(id, updates, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!updated) return sendResponse(res, 404, 'UserMinutes not found');
+        return sendResponse(res, 200, 'UserMinutes updated successfully', updated);
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Delete
+// ✅ Delete user minutes
 export const deleteUserMinutes = async (req, res) => {
     try {
-        const deleted = await UserMinutes.findByIdAndDelete(req.params.id);
-        if (!deleted) return sendResponse(res, 404, 'User minutes not found');
-        sendResponse(res, 200, 'User minutes deleted');
-    } catch (error) {
-        sendResponse(res, 500, error.message);
+        const { id } = req.params;
+
+        const deleted = await UserMinutes.findByIdAndDelete(id);
+        if (!deleted) return sendResponse(res, 404, 'UserMinutes not found');
+
+        return sendResponse(res, 200, 'UserMinutes deleted successfully');
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };

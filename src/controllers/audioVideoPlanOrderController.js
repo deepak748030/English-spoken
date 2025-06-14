@@ -1,7 +1,7 @@
-// controllers/audioVideoOrderController.js
 import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 import AudioVideoPlan from '../models/AudioVideoPlanModel.js';
 import User from '../models/userModel.js';
+import { sendResponse } from '../utils/response.js';
 
 // Utility to calculate expiration date
 const calculateExpiryDate = (type) => {
@@ -14,16 +14,16 @@ const calculateExpiryDate = (type) => {
     return now;
 };
 
-// Create an order from userId and audioVideoPlanId
+// ✅ Create an order from userId and audioVideoPlanId
 export const createOrder = async (req, res) => {
     try {
         const { userId, audioVideoPlanId } = req.body;
 
         const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!user) return sendResponse(res, 404, 'User not found');
 
         const plan = await AudioVideoPlan.findById(audioVideoPlanId);
-        if (!plan) return res.status(404).json({ message: 'Plan not found' });
+        if (!plan) return sendResponse(res, 404, 'Plan not found');
 
         const expireAt = calculateExpiryDate(plan.type);
 
@@ -39,34 +39,33 @@ export const createOrder = async (req, res) => {
         });
 
         await newOrder.save();
-        res.status(201).json({ message: 'Order created', data: newOrder });
+        return sendResponse(res, 201, 'Order created', newOrder);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Get all active orders (filter out expired and update status)
+// ✅ Get all active orders (auto-update expired)
 export const getAllOrders = async (req, res) => {
     try {
         const now = new Date();
 
-        // // Update expired orders
+        // Update expired orders
         await AudioVideoOrder.updateMany(
             { expireAt: { $lte: now }, status: 'active' },
             { $set: { status: 'expired' } }
         );
 
         const orders = await AudioVideoOrder.find({ status: 'active' })
-            .populate('userId', 'name mobileNo')
-        // .populate('audioVideoPlanId');
+            .populate('userId', 'name mobileNo');
 
-        res.status(200).json({ data: orders });
+        return sendResponse(res, 200, 'Fetched all active orders', orders);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Get active orders by userId (update status if expired)
+// ✅ Get active orders by userId (auto-update expired)
 export const getOrdersByUserId = async (req, res) => {
     try {
         const now = new Date();
@@ -81,13 +80,13 @@ export const getOrdersByUserId = async (req, res) => {
             status: 'active'
         }).populate('audioVideoPlanId');
 
-        res.status(200).json({ data: orders });
+        return sendResponse(res, 200, 'Fetched user\'s active orders', orders);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Update an order using patch
+// ✅ Update an order using PATCH
 export const updateOrder = async (req, res) => {
     try {
         const { id } = req.params;
@@ -98,24 +97,24 @@ export const updateOrder = async (req, res) => {
             runValidators: true
         });
 
-        if (!updatedOrder) return res.status(404).json({ message: 'Order not found' });
+        if (!updatedOrder) return sendResponse(res, 404, 'Order not found');
 
-        res.status(200).json({ message: 'Order updated', data: updatedOrder });
+        return sendResponse(res, 200, 'Order updated', updatedOrder);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
-// Delete an order
+// ✅ Delete an order
 export const deleteOrder = async (req, res) => {
     try {
         const { id } = req.params;
         const deletedOrder = await AudioVideoOrder.findByIdAndDelete(id);
 
-        if (!deletedOrder) return res.status(404).json({ message: 'Order not found' });
+        if (!deletedOrder) return sendResponse(res, 404, 'Order not found');
 
-        res.status(200).json({ message: 'Order deleted successfully' });
+        return sendResponse(res, 200, 'Order deleted successfully');
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };

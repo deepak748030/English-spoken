@@ -1,5 +1,5 @@
 import Room from '../models/roomModel.js';
-import { sendResponse } from '../utils/response.js'; // optional: if you're using custom response helpers
+import { sendResponse } from '../utils/response.js';
 
 // ✅ Create a new room
 export const createRoom = async (req, res) => {
@@ -11,13 +11,13 @@ export const createRoom = async (req, res) => {
             title,
             roomType,
             limit: limit || 10,
-            users: [createdBy] // add creator to users array
+            users: [createdBy]
         });
 
         await newRoom.save();
-        res.status(201).json({ message: 'Room created successfully', data: newRoom });
+        sendResponse(res, 201, 'Room created successfully', newRoom);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };
 
@@ -28,9 +28,9 @@ export const getAllRooms = async (req, res) => {
             .populate('createdBy', 'name mobileNo')
             .populate('users', 'name mobileNo');
 
-        res.status(200).json({ data: rooms });
+        sendResponse(res, 200, 'Fetched all rooms', rooms);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };
 
@@ -40,22 +40,22 @@ export const joinRoom = async (req, res) => {
         const { roomId, userId } = req.body;
 
         const room = await Room.findById(roomId);
-        if (!room) return res.status(404).json({ message: 'Room not found' });
+        if (!room) return sendResponse(res, 404, 'Room not found');
 
         if (room.users.includes(userId)) {
-            return res.status(400).json({ message: 'User already joined the room' });
+            return sendResponse(res, 400, 'User already joined the room');
         }
 
         if (room.users.length >= room.limit) {
-            return res.status(403).json({ message: 'Room user limit reached' });
+            return sendResponse(res, 403, 'Room user limit reached');
         }
 
         room.users.push(userId);
         await room.save();
 
-        res.status(200).json({ message: 'User joined the room', data: room });
+        sendResponse(res, 200, 'User joined the room', room);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };
 
@@ -65,19 +65,19 @@ export const leaveRoom = async (req, res) => {
         const { roomId, userId } = req.body;
 
         const room = await Room.findById(roomId);
-        if (!room) return res.status(404).json({ message: 'Room not found' });
+        if (!room) return sendResponse(res, 404, 'Room not found');
 
         const index = room.users.indexOf(userId);
         if (index === -1) {
-            return res.status(400).json({ message: 'User not in room' });
+            return sendResponse(res, 400, 'User not in room');
         }
 
-        room.users.splice(index, 1); // remove user
+        room.users.splice(index, 1);
         await room.save();
 
-        res.status(200).json({ message: 'User left the room', data: room });
+        sendResponse(res, 200, 'User left the room', room);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };
 
@@ -89,14 +89,14 @@ export const updateRoom = async (req, res) => {
 
         const updatedRoom = await Room.findByIdAndUpdate(id, updates, {
             new: true,
-            runValidators: true,
+            runValidators: true
         });
 
-        if (!updatedRoom) return res.status(404).json({ message: 'Room not found' });
+        if (!updatedRoom) return sendResponse(res, 404, 'Room not found');
 
-        res.status(200).json({ message: 'Room updated', data: updatedRoom });
+        sendResponse(res, 200, 'Room updated', updatedRoom);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };
 
@@ -106,10 +106,10 @@ export const deleteRoom = async (req, res) => {
         const { id } = req.params;
 
         const deletedRoom = await Room.findByIdAndDelete(id);
-        if (!deletedRoom) return res.status(404).json({ message: 'Room not found' });
+        if (!deletedRoom) return sendResponse(res, 404, 'Room not found');
 
-        res.status(200).json({ message: 'Room deleted successfully' });
+        sendResponse(res, 200, 'Room deleted successfully');
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendResponse(res, 500, err.message);
     }
 };

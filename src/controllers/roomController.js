@@ -53,66 +53,40 @@ export const joinRoom = async (req, res) => {
             return sendResponse(res, 403, 'Room user limit reached');
         }
 
-        // Step 1: Get minutes from UserMinutes model
+        // Step 1: Get user minutes from UserMinutes
         const userMinutes = await UserMinutes.findOne({ userId });
 
-        let availableAudioMinutes = 0;
-        let availableVideoMinutes = 0;
+        let remainingAudioMinutes = userMinutes?.lifetimeAudioMinutes || 0;
+        let remainingVideoMinutes = userMinutes?.lifetimeVideoMinutes || 0;
 
-        if (userMinutes) {
-            availableAudioMinutes += userMinutes.lifetimeAudioMinutes;
-            availableVideoMinutes += userMinutes.lifetimeVideoMinutes;
-        }
-
-        // Step 2: Get active AudioVideoOrder and add minutes
-        const activeOrder = await AudioVideoOrder.findOne({
+        // Step 2: Get all active AudioVideoOrders
+        const activeOrders = await AudioVideoOrder.find({
             userId,
             status: 'active',
-            expireAt: { $gt: new Date() }
+            expireAt: { $gte: new Date() }
         });
 
-        if (activeOrder) {
-            availableAudioMinutes += activeOrder.audioMinutes;
-            availableVideoMinutes += activeOrder.videoMinutes;
+        for (const order of activeOrders) {
+            remainingAudioMinutes += order.audioMinutes;
+            remainingVideoMinutes += order.videoMinutes;
         }
 
-        // Step 3: Based on roomType, only return the relevant minutes
-        const responseData = {
-            room,
-            availableMinutes: room.roomType === 'audio'
-                ? availableAudioMinutes
-                : room.roomType === 'video'
-                    ? availableVideoMinutes
-                    : 0
-        };
-
-        // Step 4: Add user to room
+        // Step 3: Add user to room
         room.users.push(userId);
         await room.save();
 
-        sendResponse(res, 200, 'User joined the room', responseData);
-    } catch (err) {
-        sendResponse(res, 500, err.message);
-    }
-};
+        // Step 4: Send response with remaining balances
+        sendResponse(res, 200, 'User joined the room', {
+            room,
+            availableMinutes: room.roomType === 'audio'
+                ? remainingAudioMinutes
+                : room.roomType === 'video'
+                    ? remainingVideoMinutes
+                    : 0,
+            remainingAudioMinutes,
+            remainingVideoMinutes
+        });
 
-// ✅ User leaves room
-export const leaveRoom = async (req, res) => {
-    try {
-        const { roomId, userId } = req.body;
-
-        const room = await Room.findById(roomId);
-        if (!room) return sendResponse(res, 404, 'Room not found');
-
-        const index = room.users.indexOf(userId);
-        if (index === -1) {
-            return sendResponse(res, 400, 'User not in room');
-        }
-
-        room.users.splice(index, 1);
-        await room.save();
-
-        sendResponse(res, 200, 'User left the room', room);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }
@@ -148,5 +122,123 @@ export const deleteRoom = async (req, res) => {
         sendResponse(res, 200, 'Room deleted successfully');
     } catch (err) {
         sendResponse(res, 500, err.message);
+    }
+};
+
+// ✅ User leaves roomexport 
+
+
+export const leaveRoom = async (req, res) => {
+    try {
+        const { roomId, userId, minutes } = req.body;
+
+        if (!roomId || !userId || !minutes) {
+            return sendResponse(res, 400, 'Missing required fields');
+        }
+
+        const room = await Room.findById(roomId);
+        if (!room) return sendResponse(res, 404, 'Room not found');
+
+        const roomType = room.roomType;
+        if (!['audio', 'video'].includes(roomType)) {
+            return sendResponse(res, 400, 'Invalid room type');
+        }
+
+        const userIndex = room.users.indexOf(userId);
+        if (userIndex === -1) return sendResponse(res, 400, 'User not in room');
+
+        // Step 1: Deduct from active orders
+        const now = new Date();
+        const orders = await AudioVideoOrder.find({
+            userId,
+            status: 'active',
+            expireAt: { $gte: now }
+        }).sort({ expireAt: 1 });
+        // console.log(orders)
+        let remainingMinutes = minutes;
+
+        for (const order of orders) {
+            let available = roomType === 'audio' ? order.audioMinutes : order.videoMinutes;
+            if (available <= 0) continue;
+
+            const deduct = Math.min(available, remainingMinutes);
+            remainingMinutes -= deduct;
+
+            if (roomType === 'audio') {
+                order.audioMinutes -= deduct;
+            } else {
+                order.videoMinutes -= deduct;
+            }
+
+            await order.save();
+
+            if (remainingMinutes <= 0) break;
+        }
+
+        // Step 2: Deduct from lifetime
+        const userMinutes = await UserMinutes.findOne({ userId });
+        if (!userMinutes) return sendResponse(res, 404, 'UserMinutes not found');
+
+        if (remainingMinutes > 0) {
+            const available = roomType === 'audio'
+                ? userMinutes.lifetimeAudioMinutes
+                : userMinutes.lifetimeVideoMinutes;
+
+            if (available >= remainingMinutes) {
+                if (roomType === 'audio') {
+                    userMinutes.lifetimeAudioMinutes -= remainingMinutes;
+                } else {
+                    userMinutes.lifetimeVideoMinutes -= remainingMinutes;
+                }
+
+                remainingMinutes = 0;
+            }
+        }
+
+        if (remainingMinutes > 0) {
+            return sendResponse(res, 402, 'Insufficient balance');
+        }
+
+        // Step 3: Update daily minutes
+        if (roomType === 'audio') {
+            userMinutes.dailyAudioMinutes = Math.max(userMinutes.dailyAudioMinutes - minutes, 0);
+        } else {
+            userMinutes.dailyVideoMinutes = Math.max(userMinutes.dailyVideoMinutes - minutes, 0);
+        }
+
+        await userMinutes.save();
+
+        // Step 4: Remove user from room
+        room.users.splice(userIndex, 1);
+        await room.save();
+
+        // Step 5: Calculate remaining total minutes
+        const updatedOrders = await AudioVideoOrder.find({
+            userId,
+            status: 'active',
+            expireAt: { $gte: new Date() }
+        });
+
+        let remainingAudioMinutes = updatedOrders.reduce((sum, o) => sum + (o.audioMinutes || 0), 0);
+        let remainingVideoMinutes = updatedOrders.reduce((sum, o) => sum + (o.videoMinutes || 0), 0);
+
+        remainingAudioMinutes += userMinutes.lifetimeAudioMinutes;
+        remainingVideoMinutes += userMinutes.lifetimeVideoMinutes;
+
+        return sendResponse(res, 200, 'User left the room and minutes deducted', {
+            room,
+            remainingToDeduct: 0,
+            updatedUserMinutes: {
+                dailyAudioMinutes: userMinutes.dailyAudioMinutes,
+                dailyVideoMinutes: userMinutes.dailyVideoMinutes,
+                lifetimeAudioMinutes: userMinutes.lifetimeAudioMinutes,
+                lifetimeVideoMinutes: userMinutes.lifetimeVideoMinutes
+            },
+            remainingAudioMinutes,
+            remainingVideoMinutes
+        });
+
+    } catch (err) {
+        return sendResponse(res, 500, err.message);
     }
 };

@@ -48,7 +48,8 @@ import audioVideoPlanRoutes from './routes/audioVideoPlanRoutes.js'
 import audioVideoPlanOrderRoutes from './routes/audioVideoPlanOrderRoutes.js'
 import roomRoutes from './routes/roomRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-import planOrderRoutes from './routes/planOrderRoutes.js'
+import planOrderRoutes from './routes/planOrderRoutes.js';
+import userMinutesOrderRoutes from './routes/userMinutesOrderRoutes.js'
 
 
 dotenv.config();
@@ -104,6 +105,7 @@ app.use('/api/audio-video-plans-order', audioVideoPlanOrderRoutes)
 app.use('/api/rooms', roomRoutes);
 app.use('/api/admin', adminRoutes)
 app.use('/api/plan-orders', planOrderRoutes); // Prefix route
+app.use('/api/user-minutes-order', userMinutesOrderRoutes)
 
 app.use(errorHandler);
 

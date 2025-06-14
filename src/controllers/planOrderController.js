@@ -1,5 +1,6 @@
 import PlanOrder from '../models/planOrderModel.js';
 import Plan from '../models/planModel.js';
+import { sendResponse } from '../utils/response.js';
 
 // ✅ Create Plan Order
 export const createPlanOrder = async (req, res) => {
@@ -7,7 +8,7 @@ export const createPlanOrder = async (req, res) => {
         const { userId, planId } = req.body;
 
         const plan = await Plan.findById(planId);
-        if (!plan) return res.status(404).json({ message: 'Plan not found' });
+        if (!plan) return sendResponse(res, 404, 'Plan not found');
 
         const expiryDate =
             plan.planType === 'subscription'
@@ -23,9 +24,9 @@ export const createPlanOrder = async (req, res) => {
         });
 
         await newOrder.save();
-        res.status(201).json({ message: 'Plan purchased successfully', data: newOrder });
+        return sendResponse(res, 201, 'Plan purchased successfully', newOrder);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
@@ -40,11 +41,11 @@ export const updatePlanOrder = async (req, res) => {
             runValidators: true
         });
 
-        if (!updated) return res.status(404).json({ message: 'Plan order not found' });
+        if (!updated) return sendResponse(res, 404, 'Plan order not found');
 
-        res.status(200).json({ message: 'Plan order updated', data: updated });
+        return sendResponse(res, 200, 'Plan order updated', updated);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
@@ -54,11 +55,11 @@ export const deletePlanOrder = async (req, res) => {
         const { id } = req.params;
 
         const deleted = await PlanOrder.findByIdAndDelete(id);
-        if (!deleted) return res.status(404).json({ message: 'Plan order not found' });
+        if (!deleted) return sendResponse(res, 404, 'Plan order not found');
 
-        res.status(200).json({ message: 'Plan order deleted successfully' });
+        return sendResponse(res, 200, 'Plan order deleted successfully');
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
 
@@ -69,11 +70,27 @@ export const getAllPlanOrders = async (req, res) => {
             .populate('userId', 'name mobileNo')
             .populate('planId', 'title type planType');
 
-        res.status(200).json({ data: orders });
+        const now = new Date();
+
+        // Check expiry and update status accordingly
+        for (const order of orders) {
+            if (order.expiryDate && order.planId.planType === 'subscription') {
+                const isExpired = order.expiryDate < now;
+                const newStatus = isExpired ? 'expired' : 'active';
+
+                if (order.status !== newStatus) {
+                    order.status = newStatus;
+                    await order.save();
+                }
+            }
+        }
+
+        return sendResponse(res, 200, 'Fetched all plan orders', orders);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };
+
 
 // ✅ Get Plan Orders by User ID
 export const getPlanOrdersByUserId = async (req, res) => {
@@ -83,8 +100,22 @@ export const getPlanOrdersByUserId = async (req, res) => {
         const orders = await PlanOrder.find({ userId })
             .populate('planId', 'title type planType');
 
-        res.status(200).json({ data: orders });
+        const now = new Date();
+
+        for (const order of orders) {
+            if (order.expiryDate && order.planId.planType === 'subscription') {
+                const isExpired = order.expiryDate < now;
+                const newStatus = isExpired ? 'expired' : 'active';
+
+                if (order.status !== newStatus) {
+                    order.status = newStatus;
+                    await order.save();
+                }
+            }
+        }
+
+        return sendResponse(res, 200, 'Fetched plan orders for user', orders);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return sendResponse(res, 500, err.message);
     }
 };

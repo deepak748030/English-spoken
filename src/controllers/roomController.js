@@ -10,7 +10,8 @@ export const createRoom = async (req, res) => {
             createdBy,
             title,
             roomType,
-            limit: limit || 10
+            limit: limit || 10,
+            users: [createdBy] // add creator to users array
         });
 
         await newRoom.save();

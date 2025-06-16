@@ -5,33 +5,44 @@ import { sendToAll } from '../socket/socketServer.js';
 
 export const createCommunityPost = async (req, res) => {
     try {
+        // Create post
         let post = await Community.create(req.body);
         if (!post) {
             return sendResponse(res, 400, 'Failed to create community post');
         }
+
+        // Populate user info
         post = await post.populate('userId', 'mobileNo');
+
+        // If this post is a reply to another post
         if (req.body.replyId) {
-            const replyPost = await Community.findByIdAndUpdate(
+            await Community.findByIdAndUpdate(
                 req.body.replyId,
-                { $inc: { reply: 1, commentCount: 1 } },
+                {
+                    $inc: { reply: 1, commentCount: 1 }
+                },
                 { new: true }
             );
         }
+
+        // Emit message to all clients
         sendToAll('community-all-msgs', {
+            _id: post._id,
             userId: post.userId,
             msg: post.msg,
-            like: post.like,
+            like: post.like || [],
             commentCount: post.commentCount,
             reply: post.reply,
-            replyId: post.replyId,
-            _id: post._id
+            replyId: post.replyId || null
         });
+
         console.log(post);
         sendResponse(res, 201, 'Community post created', post);
     } catch (err) {
         sendResponse(res, 500, err.message);
     }
 };
+
 
 export const getCommunityPosts = async (req, res) => {
     try {
@@ -47,10 +58,37 @@ export const getCommunityPosts = async (req, res) => {
 
 export const updateCommunityPost = async (req, res) => {
     try {
-        const post = await Community.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        sendResponse(res, 200, 'Community post updated', post);
+        const { userId } = req.body;
+        const { id } = req.params;
+
+        const post = await Community.findById(id);
+        if (!post) return sendResponse(res, 404, 'Community post not found');
+
+        if (userId) {
+            const alreadyLiked = post.like.includes(userId);
+
+            if (alreadyLiked) {
+                // Unlike
+                post.like = post.like.filter(id => id !== userId);
+            } else {
+                // Like
+                post.like.push(userId);
+            }
+
+            await post.save();
+
+            return sendResponse(res, 200, alreadyLiked ? 'Post unliked' : 'Post liked', {
+                post,
+                likeCount: post.like.length
+            });
+        } else {
+            // Normal update if no userId
+            const updatedPost = await Community.findByIdAndUpdate(id, req.body, { new: true });
+            return sendResponse(res, 200, 'Community post updated', updatedPost);
+        }
+
     } catch (err) {
-        sendResponse(res, 500, err.message);
+        return sendResponse(res, 500, err.message);
     }
 };
 

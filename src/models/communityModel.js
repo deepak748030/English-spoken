@@ -11,8 +11,8 @@ const CommunitySchema = new mongoose.Schema({
         required: true
     },
     like: {
-        type: Number,
-        default: 0
+        type: [String], // Store user IDs who liked
+        default: []
     },
     commentCount: {
         type: Number,

@@ -23,7 +23,7 @@ export const createUserMinutesOrder = async (req, res) => {
             endDate
         });
 
-        await newOrder.save();
+        // await newOrder.save();
 
         const updatedUserMinutes = await UserMinutes.findOneAndUpdate(
             { userId },
@@ -41,7 +41,6 @@ export const createUserMinutesOrder = async (req, res) => {
         );
 
         return sendResponse(res, 201, 'Order created and user minutes updated', {
-            order: newOrder,
             userMinutes: updatedUserMinutes
         });
     } catch (err) {

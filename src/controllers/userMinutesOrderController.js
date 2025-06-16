@@ -1,46 +1,59 @@
 import UserMinutesOrder from '../models/userMinutesOrderModel.js';
+import UserMinutes from '../models/usersMinutesModel.js';
 import { sendResponse } from '../utils/response.js';
 
-// ✅ Create a new User Minutes Order
 export const createUserMinutesOrder = async (req, res) => {
     try {
-        const {
-            userId,
-            amountPaid,
-            audioMinutes,
-            videoMinutes,
-            dailyAudioMinutes,
-            dailyVideoMinutes,
-            premiumPlanAudioMinutes,
-            premiumPlanVideoMinutes
-        } = req.body;
+        const { userId, audioMinutes, videoMinutes } = req.body;
 
-        // Set end date: 30 days from now
-        const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        if (!userId || audioMinutes == null || videoMinutes == null) {
+            return sendResponse(res, 400, 'userId, audioMinutes and videoMinutes are required');
+        }
+
+        const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
         const newOrder = new UserMinutesOrder({
             userId,
-            amountPaid,
             audioMinutes,
             videoMinutes,
-            dailyAudioMinutes,
-            dailyVideoMinutes,
-            premiumPlanAudioMinutes,
-            premiumPlanVideoMinutes,
+            dailyAudioMinutes: 0,
+            dailyVideoMinutes: 0,
+            premiumPlanAudioMinutes: 0,
+            premiumPlanVideoMinutes: 0,
             endDate
         });
 
         await newOrder.save();
-        return sendResponse(res, 201, 'User minutes order created successfully', newOrder);
+
+        const updatedUserMinutes = await UserMinutes.findOneAndUpdate(
+            { userId },
+            {
+                $inc: {
+                    lifetimeAudioMinutes: audioMinutes,
+                    lifetimeVideoMinutes: videoMinutes
+                }
+            },
+            {
+                new: true,
+                upsert: true,
+                setDefaultsOnInsert: true
+            }
+        );
+
+        return sendResponse(res, 201, 'Order created and user minutes updated', {
+            order: newOrder,
+            userMinutes: updatedUserMinutes
+        });
     } catch (err) {
         return sendResponse(res, 500, err.message);
     }
 };
 
-// ✅ Get all orders and auto update status if expired
+
 export const getAllUserMinutesOrders = async (req, res) => {
     try {
-        const orders = await UserMinutesOrder.find().populate('userId', 'name mobileNo');
+        const orders = await UserMinutesOrder.find()
+            .populate('userId', 'name mobileNo');
 
         const now = new Date();
         for (const order of orders) {
@@ -56,7 +69,6 @@ export const getAllUserMinutesOrders = async (req, res) => {
     }
 };
 
-// ✅ Get orders by user ID and auto update status
 export const getUserMinutesOrdersByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -71,13 +83,11 @@ export const getUserMinutesOrdersByUserId = async (req, res) => {
             }
         }
 
-        return sendResponse(res, 200, 'Fetched user minutes orders', orders);
+        return sendResponse(res, 200, 'Fetched orders for user', orders);
     } catch (err) {
         return sendResponse(res, 500, err.message);
     }
 };
-
-// ✅ Update order using PATCH
 export const updateUserMinutesOrder = async (req, res) => {
     try {
         const { id } = req.params;
@@ -89,13 +99,12 @@ export const updateUserMinutesOrder = async (req, res) => {
         });
 
         if (!updated) return sendResponse(res, 404, 'Order not found');
-        return sendResponse(res, 200, 'Order updated successfully', updated);
+        return sendResponse(res, 200, 'Order updated', updated);
     } catch (err) {
         return sendResponse(res, 500, err.message);
     }
 };
 
-// ✅ Delete order
 export const deleteUserMinutesOrder = async (req, res) => {
     try {
         const { id } = req.params;

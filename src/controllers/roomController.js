@@ -3,17 +3,37 @@ import UserMinutes from '../models/usersMinutesModel.js';
 import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 import { sendResponse } from '../utils/response.js';
 
-// ✅ Create a new room
+const generateRoomId = async () => {
+    const now = new Date();
+    const timestamp = now
+        .toISOString()
+        .replace(/[-:T]/g, '') // Remove delimiters
+        .slice(0, 12); // yyyyMMddHHmm → 12-digit format
+
+    const existingRooms = await Room.countDocuments({
+        createdAt: {
+            $gte: new Date(now.toDateString()) // Count rooms created today
+        }
+    });
+
+    const counter = (existingRooms + 1).toString().padStart(3, '0');
+    return `room-${timestamp}-${counter}`;
+};
+
 export const createRoom = async (req, res) => {
     try {
         const { createdBy, title, roomType, limit } = req.body;
+
+        const roomId = await generateRoomId();
+        const jitsiUrl = `https://194.238.19.95:8443/${roomId}`;
 
         const newRoom = new Room({
             createdBy,
             title,
             roomType,
             limit: limit || 10,
-            users: [createdBy]
+            users: [createdBy],
+            jitsiUrl
         });
 
         await newRoom.save();
@@ -22,6 +42,8 @@ export const createRoom = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
+
 
 // ✅ Get all rooms
 export const getAllRooms = async (req, res) => {

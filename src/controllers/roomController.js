@@ -149,7 +149,6 @@ export const deleteRoom = async (req, res) => {
 
 // ✅ User leaves roomexport 
 
-
 export const leaveRoom = async (req, res) => {
     try {
         const { roomId, userId, minutes } = req.body;
@@ -176,7 +175,7 @@ export const leaveRoom = async (req, res) => {
             status: 'active',
             expireAt: { $gte: now }
         }).sort({ expireAt: 1 });
-        // console.log(orders)
+
         let remainingMinutes = minutes;
 
         for (const order of orders) {
@@ -232,7 +231,13 @@ export const leaveRoom = async (req, res) => {
 
         // Step 4: Remove user from room
         room.users.splice(userIndex, 1);
-        await room.save();
+
+        if (room.users.length === 0) {
+            await room.deleteOne(); // ✅ delete the room if empty
+            console.log('room deleted')
+        } else {
+            await room.save(); // ✅ else save updated users list
+        }
 
         // Step 5: Calculate remaining total minutes
         const updatedOrders = await AudioVideoOrder.find({

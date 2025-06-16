@@ -3,7 +3,6 @@ import Settings from '../models/settingsModel.js';
 import logger from '../config/logger.js';
 import { sendResponse } from '../utils/response.js';
 
-
 export const upsertSettings = async (req, res, next) => {
     try {
         const {
@@ -13,7 +12,10 @@ export const upsertSettings = async (req, res, next) => {
             PerAudioMinuteCost,
             PerVideoMinuteCost,
             DailyFreeAudioMinutes,
-            DailyFreeVideoMinutes
+            DailyFreeVideoMinutes,
+            oneToOneClassIntroUrl,
+            groupClassIntroUrl,
+            trainerClassIntroUrl
         } = req.body;
 
         const updateData = {};
@@ -27,6 +29,10 @@ export const upsertSettings = async (req, res, next) => {
         if (DailyFreeAudioMinutes !== undefined) updateData.DailyFreeAudioMinutes = DailyFreeAudioMinutes;
         if (DailyFreeVideoMinutes !== undefined) updateData.DailyFreeVideoMinutes = DailyFreeVideoMinutes;
 
+        if (oneToOneClassIntroUrl !== undefined) updateData.oneToOneClassIntroUrl = oneToOneClassIntroUrl;
+        if (groupClassIntroUrl !== undefined) updateData.groupClassIntroUrl = groupClassIntroUrl;
+        if (trainerClassIntroUrl !== undefined) updateData.trainerClassIntroUrl = trainerClassIntroUrl;
+
         const settings = await Settings.findOneAndUpdate(
             {}, // Match any existing settings document
             { $set: updateData },
@@ -39,6 +45,7 @@ export const upsertSettings = async (req, res, next) => {
         next(err);
     }
 };
+
 export const getSettings = async (req, res, next) => {
     try {
         const settings = await Settings.findOne({});

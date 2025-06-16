@@ -5,11 +5,16 @@ const settingsSchema = new mongoose.Schema({
     termsAndConditions: { type: String },
     privacyPolicy: { type: String },
 
-    // New fields for Audio/Video minute costs and free minutes
-    PerAudioMinuteCost: { type: Number, default: 0 }, // Cost per 1 audio minute
-    PerVideoMinuteCost: { type: Number, default: 0 }, // Cost per 1 video minute
-    DailyFreeAudioMinutes: { type: Number, default: 0 }, // Free daily audio minutes
-    DailyFreeVideoMinutes: { type: Number, default: 0 } // Free daily video minutes
+    // Audio/Video minute costs and free minutes
+    PerAudioMinuteCost: { type: Number, default: 0 },
+    PerVideoMinuteCost: { type: Number, default: 0 },
+    DailyFreeAudioMinutes: { type: Number, default: 0 },
+    DailyFreeVideoMinutes: { type: Number, default: 0 },
+
+    // YouTube Intro Video URLs
+    oneToOneClassIntroUrl: { type: String, default: '' },
+    groupClassIntroUrl: { type: String, default: '' },
+    trainerClassIntroUrl: { type: String, default: '' }
 
 }, { timestamps: true });
 

@@ -52,6 +52,7 @@ import planOrderRoutes from './routes/planOrderRoutes.js';
 import userMinutesOrderRoutes from './routes/userMinutesOrderRoutes.js'
 import userMinutesSummaryRoutes from './routes/userMinutesSummaryRoutes.js';
 import cronRoutes from './routes/cronRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js'
 
 dotenv.config();
 
@@ -109,6 +110,7 @@ app.use('/api/plan-orders', planOrderRoutes); // Prefix route
 app.use('/api/user-minutes-order', userMinutesOrderRoutes)
 app.use('/api/user-minutes-summary', userMinutesSummaryRoutes);
 app.use('/api/cron', cronRoutes);
+app.use('/transaction', transactionRoutes)
 
 app.use(errorHandler);
 

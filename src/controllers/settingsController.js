@@ -15,7 +15,12 @@ export const upsertSettings = async (req, res, next) => {
             DailyFreeVideoMinutes,
             oneToOneClassIntroUrl,
             groupClassIntroUrl,
-            trainerClassIntroUrl
+            trainerClassIntroUrl,
+
+            // New fields
+            refundPolicy,
+            communityGuidelines,
+            aboutUs
         } = req.body;
 
         const updateData = {};
@@ -32,6 +37,11 @@ export const upsertSettings = async (req, res, next) => {
         if (oneToOneClassIntroUrl !== undefined) updateData.oneToOneClassIntroUrl = oneToOneClassIntroUrl;
         if (groupClassIntroUrl !== undefined) updateData.groupClassIntroUrl = groupClassIntroUrl;
         if (trainerClassIntroUrl !== undefined) updateData.trainerClassIntroUrl = trainerClassIntroUrl;
+
+        // Add new fields
+        if (refundPolicy !== undefined) updateData.refundPolicy = refundPolicy;
+        if (communityGuidelines !== undefined) updateData.communityGuidelines = communityGuidelines;
+        if (aboutUs !== undefined) updateData.aboutUs = aboutUs;
 
         const settings = await Settings.findOneAndUpdate(
             {}, // Match any existing settings document

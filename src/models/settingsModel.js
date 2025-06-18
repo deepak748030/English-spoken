@@ -5,6 +5,11 @@ const settingsSchema = new mongoose.Schema({
     termsAndConditions: { type: String },
     privacyPolicy: { type: String },
 
+    // New fields
+    refundPolicy: { type: String },
+    communityGuidelines: { type: String },
+    aboutUs: { type: String },
+
     // Audio/Video minute costs and free minutes
     PerAudioMinuteCost: { type: Number, default: 0 },
     PerVideoMinuteCost: { type: Number, default: 0 },

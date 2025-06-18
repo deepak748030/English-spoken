@@ -25,7 +25,7 @@ export const createRoom = async (req, res) => {
         const { createdBy, title, roomType, limit } = req.body;
 
         const roomId = await generateRoomId();
-        const jitsiUrl = `https://194.238.19.95:8443/${roomId}`;
+        const jitsiUrl = `https://jitsi.alphaspokenenglish.com/${roomId}`;
 
         const newRoom = new Room({
             createdBy,

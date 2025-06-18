@@ -1,6 +1,7 @@
 import UserMinutesOrder from '../models/userMinutesOrderModel.js';
 import UserMinutes from '../models/usersMinutesModel.js';
 import { sendResponse } from '../utils/response.js';
+import transaction from '../models/transactionModel.js'
 
 export const createUserMinutesOrder = async (req, res) => {
     try {
@@ -39,6 +40,13 @@ export const createUserMinutesOrder = async (req, res) => {
                 setDefaultsOnInsert: true
             }
         );
+
+        await Transaction.create({
+            userId,
+            message: `User Minutes Order created`,
+            type: 'add'
+        });
+
 
         return sendResponse(res, 201, 'Order created and user minutes updated', {
             userMinutes: updatedUserMinutes

@@ -1,10 +1,16 @@
 // controllers/courseSubscriptionController.js
 import CourseSubscription from '../models/courseSubscriptionModel.js';
 import { sendResponse } from '../utils/response.js';
+import Transaction from '../models/transactionModel.js';
 
 export const createSubscription = async (req, res) => {
     try {
         const subscription = await CourseSubscription.create(req.body);
+        await Transaction.create({
+            userId: req.body.userId,
+            message: `Course Order created`,
+            type: 'add'
+        });
         sendResponse(res, 201, 'Subscription created', subscription);
     } catch (error) {
         sendResponse(res, 500, error.message);

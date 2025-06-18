@@ -1,6 +1,7 @@
 import PlanOrder from '../models/planOrderModel.js';
 import Plan from '../models/planModel.js';
 import { sendResponse } from '../utils/response.js';
+import Transaction from '../models/transactionModel.js';
 
 // ✅ Create Plan Order
 export const createPlanOrder = async (req, res) => {
@@ -24,6 +25,13 @@ export const createPlanOrder = async (req, res) => {
         });
 
         await newOrder.save();
+
+        await Transaction.create({
+            userId,
+            message: `Plan Order created`,
+            type: 'add'
+        });
+
         return sendResponse(res, 201, 'Plan purchased successfully', newOrder);
     } catch (err) {
         return sendResponse(res, 500, err.message);

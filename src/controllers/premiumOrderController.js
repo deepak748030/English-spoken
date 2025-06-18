@@ -3,6 +3,7 @@ import CourseSubscription from '../models/courseSubscriptionModel.js';
 import EbookOrder from '../models/ebookOrderModel.js';
 import UserMinutes from '../models/usersMinutesModel.js';
 import Premium from '../models/premiumModel.js';
+import Transaction from '../models/transactionModel.js';
 import { sendResponse } from '../utils/response.js';
 
 export const createPremiumOrder = async (req, res) => {
@@ -61,7 +62,12 @@ export const createPremiumOrder = async (req, res) => {
 
         // ✅ Create Premium Order
         const premiumOrder = await PremiumOrder.create(req.body);
-
+        // ✅ Add Transaction (simple)
+        await Transaction.create({
+            userId,
+            message: `Premium Order created`,
+            type: 'add'
+        });
         sendResponse(res, 201, 'Premium order created successfully', premiumOrder);
     } catch (error) {
         sendResponse(res, 500, error.message);

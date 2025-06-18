@@ -2,6 +2,7 @@ import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 import AudioVideoPlan from '../models/AudioVideoPlanModel.js';
 import User from '../models/userModel.js';
 import { sendResponse } from '../utils/response.js';
+import Transaction from '../models/transactionModel.js';
 
 // Utility to calculate expiration date
 const calculateExpiryDate = (type) => {
@@ -39,6 +40,13 @@ export const createOrder = async (req, res) => {
         });
 
         await newOrder.save();
+        // ✅ Log transaction
+        await Transaction.create({
+            userId,
+            message: `Audio/Video Plan Order created`,
+            type: 'add'
+        });
+
         return sendResponse(res, 201, 'Order created', newOrder);
     } catch (err) {
         return sendResponse(res, 500, err.message);

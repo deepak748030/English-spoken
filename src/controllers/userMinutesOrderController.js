@@ -1,7 +1,7 @@
 import UserMinutesOrder from '../models/userMinutesOrderModel.js';
 import UserMinutes from '../models/usersMinutesModel.js';
 import { sendResponse } from '../utils/response.js';
-import transaction from '../models/transactionModel.js'
+import Transaction from '../models/transactionModel.js'
 
 export const createUserMinutesOrder = async (req, res) => {
     try {

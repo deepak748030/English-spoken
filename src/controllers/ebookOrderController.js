@@ -1,17 +1,23 @@
 import EbookOrder from '../models/ebookOrderModel.js';
 import { sendResponse } from '../utils/response.js';
 import Transaction from '../models/transactionModel.js';
+import Ebook from '../models/ebookModel.js';
 
 // Create Ebook Order
 export const createEbookOrder = async (req, res) => {
     try {
         const order = await EbookOrder.create(req.body);
         // ✅ Add Transaction for Premium Order
+        const ebook = await Ebook.findById(req.body.ebookId);
+        if (!ebook) return sendResponse(res, 404, 'Ebook not found');
+
         await Transaction.create({
+            amount: ebook.price,
             userId: req.body.userId,
             message: `Ebook Order created`,
             type: 'add'
         });
+
         sendResponse(res, 201, 'Ebook order created successfully', order);
     } catch (error) {
         sendResponse(res, 500, error.message);

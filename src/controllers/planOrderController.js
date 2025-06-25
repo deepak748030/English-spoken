@@ -27,6 +27,7 @@ export const createPlanOrder = async (req, res) => {
         await newOrder.save();
 
         await Transaction.create({
+            amount: plan.amount,
             userId,
             message: `Plan Order created`,
             type: 'add'

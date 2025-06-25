@@ -42,6 +42,7 @@ export const createOrder = async (req, res) => {
         await newOrder.save();
         // ✅ Log transaction
         await Transaction.create({
+            amount: plan.cost,
             userId,
             message: `Audio/Video Plan Order created`,
             type: 'add'

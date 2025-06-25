@@ -58,7 +58,6 @@ export const getTeacherById = async (req, res) => {
     }
 };
 
-
 export const updateTeacher = async (req, res) => {
     try {
         const {
@@ -83,22 +82,19 @@ export const updateTeacher = async (req, res) => {
             teacher.commission = teacherType === 'other' ? commission || 0 : 0;
         }
 
-        if (typeof isVerified === 'boolean') teacher.isVerified = isVerified;
-        if (typeof enableLive === 'boolean') teacher.enableLive = enableLive;
+        if (isVerified !== undefined) teacher.isVerified = isVerified === 'true' || isVerified === true;
+        if (enableLive !== undefined) teacher.enableLive = enableLive === 'true' || enableLive === true;
 
         if (introVideoUrl !== undefined) teacher.introVideoUrl = introVideoUrl;
         if (about !== undefined) teacher.about = about;
 
         // ✅ Handle image update
         if (req.file) {
-            // Get the old image filename from the full URL
             const oldImgPath = teacher.profileImg.replace(process.env.IMG_URL, '');
-
             const fullOldImgPath = path.join('uploads', oldImgPath);
             if (fs.existsSync(fullOldImgPath)) {
-                fs.unlinkSync(fullOldImgPath); // Delete old image
+                fs.unlinkSync(fullOldImgPath);
             }
-
             teacher.profileImg = `${process.env.IMG_URL}${req.file.filename}`;
         }
 
@@ -109,6 +105,7 @@ export const updateTeacher = async (req, res) => {
         sendResponse(res, 500, err.message);
     }
 };
+
 
 
 // Delete Teacher

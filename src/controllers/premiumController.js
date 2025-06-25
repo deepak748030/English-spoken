@@ -27,10 +27,17 @@ export const updatePremium = async (req, res) => {
         } = req.body;
 
         const updateData = {
-            ...rest,
-            ...(courseIds && { courses: courseIds }),
-            ...(ebookIds && { ebooks: ebookIds }),
+            ...rest
         };
+
+        // ✅ Always update courseIds and ebookIds — even if empty
+        if ('courseIds' in req.body) {
+            updateData.courseIds = courseIds;
+        }
+
+        if ('ebookIds' in req.body) {
+            updateData.ebookIds = ebookIds;
+        }
 
         const updated = await Premium.findByIdAndUpdate(
             req.params.id,
@@ -39,6 +46,7 @@ export const updatePremium = async (req, res) => {
         );
 
         if (!updated) return sendResponse(res, 404, "Premium plan not found");
+
         sendResponse(res, 200, "Premium plan updated", updated);
     } catch (error) {
         console.error(error);
@@ -47,11 +55,11 @@ export const updatePremium = async (req, res) => {
 };
 
 
+
+
 export const getAllPremiums = async (_, res) => {
     try {
         const premiums = await Premium.find()
-            .populate("courseIds", "title")
-            .populate("ebookIds", "title");
         sendResponse(res, 200, "Premium plans fetched", premiums);
     } catch (error) {
         console.error(error);
@@ -62,8 +70,6 @@ export const getAllPremiums = async (_, res) => {
 export const getPremiumById = async (req, res) => {
     try {
         const premium = await Premium.findById(req.params.id)
-            .populate("courses", "title")
-            .populate("ebooks", "title");
         if (!premium) return sendResponse(res, 404, "Premium plan not found");
         sendResponse(res, 200, "Premium plan fetched", premium);
     } catch (error) {

@@ -119,7 +119,7 @@ export const deleteCommunityPost = async (req, res) => {
 export const getReplyCommunityPostsByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
-        const posts = await Community.find({ replyId: userId }).populate('userId', 'mobileNo');
+        const posts = await Community.find({ replyId: userId }).populate('userId', 'mobileNo name');
         sendResponse(res, 200, 'Community posts fetched by user', posts);
     } catch (err) {
         sendResponse(res, 500, err.message);

@@ -1,20 +1,45 @@
 // src/controllers/userController.js
 import User from '../models/userModel.js';
+import Setting from '../models/settingsModel.js';
+import UserMinutes from '../models/usersMinutesModel.js';
 import logger from '../config/logger.js';
 import { sendResponse } from '../utils/response.js';
 
 export const loginOrRegister = async (req, res, next) => {
     try {
         const { mobileNo } = req.body;
+
         let user = await User.findOne({ mobileNo });
+
         if (user) {
             logger.info(`User logged in: ${user.mobileNo}`);
             return sendResponse(res, 200, 'User found', user);
         }
+
+        // Create new user
         user = await User.create({ mobileNo });
-        logger.info(`User created: ${user.mobileNo}`);
-        sendResponse(res, 201, 'User created', user);
-    } catch (err) { next(err); }
+
+        // Get default settings
+        const defaultSettings = await Setting.findOne();
+        if (!defaultSettings) {
+            return sendResponse(res, 500, 'Settings not found');
+        }
+
+        // Create UserMinutes entry
+        await UserMinutes.create({
+            userId: user._id,
+            dailyAudioMinutes: defaultSettings.DailyFreeAudioMinutes || 0,
+            dailyVideoMinutes: defaultSettings.DailyFreeVideoMinutes || 0,
+            lifetimeAudioMinutes: 0,
+            lifetimeVideoMinutes: 0
+        });
+
+        logger.info(`New user created with minutes: ${user.mobileNo}`);
+        sendResponse(res, 201, 'User created successfully', user);
+
+    } catch (err) {
+        next(err);
+    }
 };
 
 export const updateUser = async (req, res, next) => {

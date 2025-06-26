@@ -60,6 +60,9 @@ export const updatePremium = async (req, res) => {
 export const getAllPremiums = async (_, res) => {
     try {
         const premiums = await Premium.find()
+            .populate("courseIds")
+            .populate("ebookIds");
+
         sendResponse(res, 200, "Premium plans fetched", premiums);
     } catch (error) {
         console.error(error);

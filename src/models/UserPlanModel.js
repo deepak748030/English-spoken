@@ -11,7 +11,7 @@ const userPlanSchema = new mongoose.Schema({
     planId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plan',
-        required: true
+        // required: true
     },
     type: {
         type: String,

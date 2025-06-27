@@ -5,12 +5,19 @@ import UserMinutes from '../models/usersMinutesModel.js';
 import Premium from '../models/premiumModel.js';
 import Transaction from '../models/transactionModel.js';
 import { sendResponse } from '../utils/response.js';
+import UserPlan from '../models/UserPlanModel.js';
 
 export const createPremiumOrder = async (req, res) => {
     try {
-        const { userId, premiumId, startDate, endDate } = req.body;
+        const { userId, premiumId, startDate, endDate, duration } = req.body;
+        const planType = 'one-time'; // ✅ Always one-time
 
-        // Fetch Premium details
+        const numericDuration = Number(duration);
+        if (isNaN(numericDuration)) {
+            return sendResponse(res, 400, "Invalid duration, must be a number");
+        }
+
+        // ✅ Fetch Premium details
         const premiumInfo = await Premium.findById(premiumId);
         if (!premiumInfo) return sendResponse(res, 404, 'Premium plan not found');
 
@@ -18,7 +25,10 @@ export const createPremiumOrder = async (req, res) => {
             courseIds = [],
             ebookIds = [],
             audioMinutes = 0,
-            videoMinutes = 0
+            videoMinutes = 0,
+            oneToOneClasses = 0,
+            groupClasses = 0,
+            trainerTalkClasses = 0
         } = premiumInfo;
 
         // ✅ Insert Course Subscriptions
@@ -31,7 +41,9 @@ export const createPremiumOrder = async (req, res) => {
             renewalCount: 0,
             paymentStatus: 'completed'
         }));
-        await CourseSubscription.insertMany(courseSubscriptions);
+        if (courseSubscriptions.length) {
+            await CourseSubscription.insertMany(courseSubscriptions);
+        }
 
         // ✅ Insert Ebook Orders
         const ebookOrders = ebookIds.map(ebookId => ({
@@ -41,35 +53,82 @@ export const createPremiumOrder = async (req, res) => {
             endDate,
             paymentStatus: 'completed'
         }));
-        await EbookOrder.insertMany(ebookOrders);
+        if (ebookOrders.length) {
+            await EbookOrder.insertMany(ebookOrders);
+        }
 
         // ✅ Handle UserMinutes
         const existingUserMinutes = await UserMinutes.findOne({ userId });
 
         if (existingUserMinutes) {
-            // Update: add minutes to existing values
-            existingUserMinutes.premiumPlanAudioMinutes += audioMinutes;
-            existingUserMinutes.premiumPlanVideoMinutes += videoMinutes;
+            existingUserMinutes.premiumPlanAudioMinutes += audioMinutes * numericDuration;
+            existingUserMinutes.premiumPlanVideoMinutes += videoMinutes * numericDuration;
             await existingUserMinutes.save();
         } else {
-            // Create new UserMinutes
             await UserMinutes.create({
                 userId,
-                premiumPlanAudioMinutes: audioMinutes,
-                premiumPlanVideoMinutes: videoMinutes
+                premiumPlanAudioMinutes: audioMinutes * numericDuration,
+                premiumPlanVideoMinutes: videoMinutes * numericDuration
             });
         }
 
+        // ✅ Add UserPlan entries
+        const expiryDate = null; // Always one-time => no expiry
+        const userPlans = [];
+
+        if (oneToOneClasses > 0) {
+            userPlans.push({
+                userId,
+                planId: premiumId,
+                type: 'one-to-one-class',
+                planType,
+                remainingClassCount: oneToOneClasses * numericDuration,
+                expiryDate
+            });
+        }
+
+        if (groupClasses > 0) {
+            userPlans.push({
+                userId,
+                planId: premiumId,
+                type: 'group-class',
+                planType,
+                remainingClassCount: groupClasses * numericDuration,
+                expiryDate
+            });
+        }
+
+        if (trainerTalkClasses > 0) {
+            userPlans.push({
+                userId,
+                planId: premiumId,
+                type: 'trainer-talk',
+                planType,
+                remainingClassCount: trainerTalkClasses * numericDuration,
+                expiryDate
+            });
+        }
+
+        if (userPlans.length > 0) {
+            await UserPlan.insertMany(userPlans);
+        }
+
         // ✅ Create Premium Order
-        const premiumOrder = await PremiumOrder.create(req.body);
-        // ✅ Add Transaction (simple)
+        const premiumOrder = await PremiumOrder.create({
+            ...req.body,
+            planType // Optional if you want to store it
+        });
+
+        // ✅ Add Transaction
         await Transaction.create({
             userId,
-            message: `Premium Order created`,
+            message: "Premium Order created",
             type: 'add'
         });
+
         sendResponse(res, 201, 'Premium order created successfully', premiumOrder);
     } catch (error) {
+        console.error("Error in createPremiumOrder:", error);
         sendResponse(res, 500, error.message);
     }
 };

@@ -217,3 +217,24 @@ export const getUserPlans = async (req, res) => {
         return sendResponse(res, 500, `Error while retrieving user plans: ${err.message}`);
     }
 };
+
+
+export const getUserAllPlans = async (req, res) => {
+    try {
+        // Find all user plans, sorted by createdAt in descending order
+        const userPlans = await UserPlan.find({})
+            .sort({ createdAt: -1 })
+            .populate('userId', 'mobileNo')
+            .populate('planId', 'title amount type planType classCount durationInDays');
+
+        if (!userPlans || userPlans.length === 0) {
+            return sendResponse(res, 404, 'No user plans found');
+        }
+
+        return sendResponse(res, 200, 'All user plans retrieved successfully', userPlans);
+
+    } catch (err) {
+        console.error('Error in getUserAllPlans:', err);
+        return sendResponse(res, 500, `Error while retrieving all user plans: ${err.message}`);
+    }
+}

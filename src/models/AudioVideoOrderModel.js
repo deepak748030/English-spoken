@@ -10,7 +10,7 @@ const audioVideoOrderSchema = new mongoose.Schema({
     audioVideoPlanId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AudioVideoPlan',
-        required: true
+        // required: true
     },
     type: {
         type: String,

@@ -6,6 +6,7 @@ import Premium from '../models/premiumModel.js';
 import Transaction from '../models/transactionModel.js';
 import { sendResponse } from '../utils/response.js';
 import UserPlan from '../models/UserPlanModel.js';
+import AudioVideoOrder from '../models/AudioVideoOrderModel.js';
 
 export const createPremiumOrder = async (req, res) => {
     try {
@@ -58,17 +59,22 @@ export const createPremiumOrder = async (req, res) => {
         }
 
         // ✅ Handle UserMinutes
-        const existingUserMinutes = await UserMinutes.findOne({ userId });
+        // ✅ Handle UserMinutes for lifetime premium order
+        // Instead of UserMinutes, create AudioVideoOrder with planId as null
 
-        if (existingUserMinutes) {
-            existingUserMinutes.premiumPlanAudioMinutes += audioMinutes * numericDuration;
-            existingUserMinutes.premiumPlanVideoMinutes += videoMinutes * numericDuration;
-            await existingUserMinutes.save();
-        } else {
-            await UserMinutes.create({
+        const audioToAdd = audioMinutes * numericDuration;
+        const videoToAdd = videoMinutes * numericDuration;
+
+        if (audioToAdd > 0 || videoToAdd > 0) {
+            await AudioVideoOrder.create({
                 userId,
-                premiumPlanAudioMinutes: audioMinutes * numericDuration,
-                premiumPlanVideoMinutes: videoMinutes * numericDuration
+                audioVideoPlanId: null,
+                type: 'monthly',
+                audioMinutes: audioToAdd,
+                videoMinutes: videoToAdd,
+                cost: 0,
+                expireAt: endDate,
+                status: 'active'
             });
         }
 

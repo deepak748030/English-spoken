@@ -1,14 +1,10 @@
-
-// controllers/premiumController.js
 import Premium from "../models/premiumModel.js";
 import { sendResponse } from "../utils/response.js";
 
+// ✅ Create Premium Plan
 export const createPremium = async (req, res) => {
     try {
-
-
         const premium = new Premium(req.body);
-
         await premium.save();
         sendResponse(res, 201, "Premium plan created", premium);
     } catch (error) {
@@ -17,27 +13,32 @@ export const createPremium = async (req, res) => {
     }
 };
 
-
+// ✅ Update Premium Plan
 export const updatePremium = async (req, res) => {
     try {
         const {
             courseIds,
             ebookIds,
+            oneMonthRazorpayId,
+            threeMonthRazorpayId,
+            sixMonthRazorpayId,
+            twelveMonthRazorpayId,
             ...rest
         } = req.body;
 
         const updateData = {
-            ...rest
+            ...rest,
         };
 
-        // ✅ Always update courseIds and ebookIds — even if empty
-        if ('courseIds' in req.body) {
-            updateData.courseIds = courseIds;
-        }
+        // Optional Razorpay plan ID updates
+        if (oneMonthRazorpayId !== undefined) updateData.oneMonthRazorpayId = oneMonthRazorpayId;
+        if (threeMonthRazorpayId !== undefined) updateData.threeMonthRazorpayId = threeMonthRazorpayId;
+        if (sixMonthRazorpayId !== undefined) updateData.sixMonthRazorpayId = sixMonthRazorpayId;
+        if (twelveMonthRazorpayId !== undefined) updateData.twelveMonthRazorpayId = twelveMonthRazorpayId;
 
-        if ('ebookIds' in req.body) {
-            updateData.ebookIds = ebookIds;
-        }
+        // ✅ Always update courseIds and ebookIds even if empty
+        if ("courseIds" in req.body) updateData.courseIds = courseIds;
+        if ("ebookIds" in req.body) updateData.ebookIds = ebookIds;
 
         const updated = await Premium.findByIdAndUpdate(
             req.params.id,
@@ -54,9 +55,7 @@ export const updatePremium = async (req, res) => {
     }
 };
 
-
-
-
+// ✅ Get All Premium Plans
 export const getAllPremiums = async (_, res) => {
     try {
         const premiums = await Premium.find()
@@ -70,10 +69,15 @@ export const getAllPremiums = async (_, res) => {
     }
 };
 
+// ✅ Get Single Premium Plan by ID
 export const getPremiumById = async (req, res) => {
     try {
         const premium = await Premium.findById(req.params.id)
+            .populate("courseIds")
+            .populate("ebookIds");
+
         if (!premium) return sendResponse(res, 404, "Premium plan not found");
+
         sendResponse(res, 200, "Premium plan fetched", premium);
     } catch (error) {
         console.error(error);
@@ -81,6 +85,7 @@ export const getPremiumById = async (req, res) => {
     }
 };
 
+// ✅ Delete Premium Plan
 export const deletePremium = async (req, res) => {
     try {
         const deleted = await Premium.findByIdAndDelete(req.params.id);

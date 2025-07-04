@@ -25,6 +25,24 @@ const premiumSchema = new mongoose.Schema(
             required: true,
         },
 
+        // ✅ Razorpay Plan IDs for Each Duration
+        oneMonthRazorpayId: {
+            type: String,
+            default: "", // Optional but available
+        },
+        threeMonthRazorpayId: {
+            type: String,
+            default: "",
+        },
+        sixMonthRazorpayId: {
+            type: String,
+            default: "",
+        },
+        twelveMonthRazorpayId: {
+            type: String,
+            default: "",
+        },
+
         // Media Usage Limits
         audioMinutes: {
             type: Number,

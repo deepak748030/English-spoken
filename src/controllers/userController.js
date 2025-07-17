@@ -67,7 +67,33 @@ export const loginOrRegister = async (req, res, next) => {
     }
 };
 
+export const updatePasswordIfAlreadySet = async (req, res) => {
+  try {
+    const { mobileNo, password } = req.body;
 
+    if (!mobileNo || !password) {
+      return sendResponse(res, 400, false, 'Mobile number and password are required');
+    }
+
+    const user = await User.findOne({ mobileNo });
+
+    if (!user) {
+      return sendResponse(res, 404, false, 'User not found');
+    }
+
+    if (!user.password) {
+      return sendResponse(res, 400, false, 'Password was never set for this user');
+    }
+
+    user.password = password;
+    await user.save();
+
+    return sendResponse(res, 200, true, 'Password updated successfully');
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, 500, false, 'Internal server error');
+  }
+};
 
 
 

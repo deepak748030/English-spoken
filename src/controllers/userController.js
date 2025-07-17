@@ -7,25 +7,42 @@ import { sendResponse } from '../utils/response.js';
 
 export const loginOrRegister = async (req, res, next) => {
     try {
-        const { mobileNo } = req.body;
+        const { mobileNo, password } = req.body;
+
+        if (!mobileNo) return sendResponse(res, 400, 'Mobile number is required');
 
         let user = await User.findOne({ mobileNo });
 
         if (user) {
-            logger.info(`User logged in: ${user.mobileNo}`);
-            return sendResponse(res, 200, 'User found', user);
+            // Handle login
+            if (user.password) {
+                if (!password) {
+                    return sendResponse(res, 400, 'Password is required for login');
+                }
+
+                // Compare password
+                if (user.password !== password) {
+                    return sendResponse(res, 401, 'Incorrect password');
+                }
+
+                logger.info(`User logged in: ${user.mobileNo}`);
+                return sendResponse(res, 200, 'Login successful', user);
+            } else {
+                return sendResponse(res, 400, 'Password not set for this user');
+            }
         }
 
-        // Create new user
-        user = await User.create({ mobileNo });
-
-        // Get default settings
+        // If user does not exist → register
         const defaultSettings = await Setting.findOne();
         if (!defaultSettings) {
             return sendResponse(res, 500, 'Settings not found');
         }
 
-        // Create UserMinutes entry
+        user = await User.create({
+            mobileNo,
+            password: password || null
+        });
+
         await UserMinutes.create({
             userId: user._id,
             dailyAudioMinutes: defaultSettings.DailyFreeAudioMinutes || 0,
@@ -34,13 +51,43 @@ export const loginOrRegister = async (req, res, next) => {
             lifetimeVideoMinutes: 0
         });
 
-        logger.info(`New user created with minutes: ${user.mobileNo}`);
+        logger.info(`New user created: ${user.mobileNo}`);
         sendResponse(res, 201, 'User created successfully', user);
 
     } catch (err) {
         next(err);
     }
 };
+
+export const setPasswordIfNotSet = async (req, res, next) => {
+    try {
+        const { mobileNo, newPassword } = req.body;
+
+        if (!mobileNo || !newPassword) {
+            return sendResponse(res, 400, false, 'Mobile number and new password are required');
+        }
+
+        const user = await User.findOne({ mobileNo });
+
+        if (!user) {
+            return sendResponse(res, 404, false, 'User not found');
+        }
+
+        if (user.password) {
+            return sendResponse(res, 400, false, 'Password already set. Please login.');
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        return sendResponse(res, 200, true, 'Password set successfully', user);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
 
 export const updateUser = async (req, res, next) => {
     try {

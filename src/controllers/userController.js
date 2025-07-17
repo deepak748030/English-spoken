@@ -20,7 +20,6 @@ export const loginOrRegister = async (req, res, next) => {
                     return sendResponse(res, 400, 'Password is required for login');
                 }
 
-                // Compare password
                 if (user.password !== password) {
                     return sendResponse(res, 401, 'Incorrect password');
                 }
@@ -28,7 +27,16 @@ export const loginOrRegister = async (req, res, next) => {
                 logger.info(`User logged in: ${user.mobileNo}`);
                 return sendResponse(res, 200, 'Login successful', user);
             } else {
-                return sendResponse(res, 400, 'Password not set for this user');
+                // Password not set → set it now
+                if (!password) {
+                    return sendResponse(res, 400, 'Password not set. Please provide a password to continue.');
+                }
+
+                user.password = password;
+                await user.save();
+
+                logger.info(`Password set and user logged in: ${user.mobileNo}`);
+                return sendResponse(res, 200, 'Password set successfully and user logged in', user);
             }
         }
 
@@ -59,32 +67,6 @@ export const loginOrRegister = async (req, res, next) => {
     }
 };
 
-export const setPasswordIfNotSet = async (req, res, next) => {
-    try {
-        const { mobileNo, newPassword } = req.body;
-
-        if (!mobileNo || !newPassword) {
-            return sendResponse(res, 400, false, 'Mobile number and new password are required');
-        }
-
-        const user = await User.findOne({ mobileNo });
-
-        if (!user) {
-            return sendResponse(res, 404, false, 'User not found');
-        }
-
-        if (user.password) {
-            return sendResponse(res, 400, false, 'Password already set. Please login.');
-        }
-
-        user.password = newPassword;
-        await user.save();
-
-        return sendResponse(res, 200, true, 'Password set successfully', user);
-    } catch (error) {
-        next(error);
-    }
-};
 
 
 
